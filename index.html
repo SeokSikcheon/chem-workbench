@@ -2048,6 +2048,46 @@
       gap: 8px;
     }
 
+    .trend-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .trend-header-row .hydride-trend-title {
+      flex: 1;
+    }
+
+    .trend-toggle-btn {
+      border: 1px solid var(--panel-border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 4px 10px;
+      min-height: 28px;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .trend-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .trend-content {
+      display: grid;
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .hydride-trend.is-collapsed .trend-content {
+      display: none;
+    }
+
     .hydride-trend-title {
       margin: 0;
       font-size: 13px;
@@ -2106,6 +2146,32 @@
       color: var(--text);
       padding: 8px 10px;
       min-height: 38px;
+    }
+
+    .orbital-config-panel {
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 12px 14px;
+      min-height: 72px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .orbital-config-title {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .orbital-config-text {
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--text);
+      font-weight: 700;
+      word-break: break-word;
+    }
       cursor: pointer;
       transition: border-color 120ms ease, background 120ms ease, transform 120ms ease;
       line-height: 1.25;
@@ -2973,7 +3039,13 @@
       <div class="left-col">
         <canvas id="view"></canvas>
         <div class="card">
-          <label data-i18n="orbital_diagram">轨道表示式（电子排布图）</label>
+          <div class="row" style="justify-content: space-between">
+            <label id="orbitalPanelTitle" data-i18n="orbital_panel_mode">显示内容</label>
+            <select id="orbitalPanelViewMode" style="max-width: 180px">
+              <option value="atomic" data-i18n="orbital_view_atomic">原子结构示意图</option>
+              <option value="orbital" data-i18n="orbital_view_orbital">轨道表示式</option>
+            </select>
+          </div>
           <div id="orbitalDiagram" class="orbital-wrap" style="margin-top: 10px"></div>
         </div>
       </div>
@@ -3089,25 +3161,11 @@
             <option value="winter" data-i18n="theme_winter">寒冬</option>
           </select>
         </div>
-        <div class="modal-row">
-          <span data-i18n="model_mode">模型</span>
-          <select id="modelModeSelect">
-            <option value="cloud" data-i18n="model_cloud">电子云模型</option>
-            <option value="bohr" data-i18n="model_bohr">波尔模型</option>
-          </select>
-        </div>
         <div class="modal-row" id="bohrMotionRow">
           <span data-i18n="bohr_motion">波尔运动</span>
           <select id="bohrMotionSelect">
             <option value="dynamic" data-i18n="bohr_dynamic">动态</option>
             <option value="static" data-i18n="bohr_static">静态</option>
-          </select>
-        </div>
-        <div class="modal-row" id="cloudModeRow">
-          <span data-i18n="cloud_mode">电子云模式</span>
-          <select id="cloudModeSelect">
-            <option value="fill" data-i18n="cloud_fill">填充式</option>
-            <option value="particle" data-i18n="cloud_particle">粒子式</option>
           </select>
         </div>
         <div class="modal-row">
@@ -3497,6 +3555,8 @@
     const elementInfo = document.getElementById("elementInfo");
     const configBox = document.getElementById("configBox");
     const configMode = document.getElementById("configMode");
+    const orbitalPanelTitle = document.getElementById("orbitalPanelTitle");
+    const orbitalPanelViewModeSelect = document.getElementById("orbitalPanelViewMode");
     const orbitalDiagram = document.getElementById("orbitalDiagram");
     const plusBtn = document.getElementById("plus");
     const minusBtn = document.getElementById("minus");
@@ -3539,11 +3599,8 @@
     const langConfirmCancel = document.getElementById("langConfirmCancel");
     const langConfirmOk = document.getElementById("langConfirmOk");
     const themeSelect = document.getElementById("themeSelect");
-    const modelModeSelect = document.getElementById("modelModeSelect");
     const bohrMotionRow = document.getElementById("bohrMotionRow");
     const bohrMotionSelect = document.getElementById("bohrMotionSelect");
-    const cloudModeRow = document.getElementById("cloudModeRow");
-    const cloudModeSelect = document.getElementById("cloudModeSelect");
     const langSelect = document.getElementById("langSelect");
     const naToggle = document.getElementById("naToggle");
     const toolsNavSelect = document.getElementById("toolsNavSelect");
@@ -3695,7 +3752,9 @@
         hydride_detail_property: "性质概述",
         hydride_detail_note: "补充说明",
         hydride_trend_title: "同族稳定性递变",
-        hydride_trend_note: "一般规律：同族从上到下，氢化物热稳定性降低（左高右低）。",
+        hydride_trend_note: "不同类型氢化物递变规律不同：非金属共价氢化物常见稳定性下移减弱；金属离子型氢化物常结合离子性、晶格能与反应活性综合比较。",
+        trend_collapse: "收起",
+        trend_expand: "展开",
         hydroxide_dict: "氢氧化物",
         hydroxide_dict_subtitle: "按族列出常见氢氧化物，并比较碱性与溶解性递变",
         hydroxide_select_hint: "请先在左侧选择一种氢氧化物。",
@@ -3760,6 +3819,9 @@
         config_noble: "稀有气体简写排布",
         config_valence: "价层电子排布",
         orbital_diagram: "轨道表示式（电子排布图）",
+        orbital_panel_mode: "显示内容",
+        orbital_view_atomic: "原子结构示意图",
+        orbital_view_orbital: "轨道表示式",
         ptable_title: "元素周期表",
         display: "显示",
         ptable_symbol: "元素符号",
@@ -3938,7 +4000,9 @@
         hydride_detail_property: "Properties",
         hydride_detail_note: "Notes",
         hydride_trend_title: "Group Stability Trend",
-        hydride_trend_note: "General trend: within a group, hydride thermal stability decreases down the group (left high -> right low).",
+        hydride_trend_note: "Hydride trends depend on type: covalent nonmetal hydrides often weaken in stability down a group, while ionic metal hydrides are better compared by ionic character, lattice effects, and reactivity.",
+        trend_collapse: "Collapse",
+        trend_expand: "Expand",
         hydroxide_dict: "Hydroxides",
         hydroxide_dict_subtitle: "Common hydroxides by groups with basicity/solubility trends",
         hydroxide_select_hint: "Please select a hydroxide from the left panel.",
@@ -4003,6 +4067,9 @@
         config_noble: "Noble Gas",
         config_valence: "Valence",
         orbital_diagram: "Orbital Diagram",
+        orbital_panel_mode: "Display",
+        orbital_view_atomic: "Atomic Structure",
+        orbital_view_orbital: "Orbital Diagram",
         ptable_title: "Periodic Table (full layout, highlight current)",
         display: "Display",
         ptable_symbol: "Symbol",
@@ -4904,6 +4971,7 @@
     };
 
     let currentLang = "zh";
+    let orbitalPanelViewMode = "orbital";
     let sfxEnabled = true;
     let sfxVolume = 0.45;
     let sfxCtx = null;
@@ -5047,6 +5115,7 @@
       updateBlockLegendTips();
       updateSidebarButtonLabels();
       updateDeviceLabel();
+      updateOrbitalPanelTitle();
       updateCoexistInputPlaceholders();
       document.title = t("app_title");
       updateMoleModeLabel();
@@ -5723,82 +5792,326 @@
       };
     }
 
-    let modelMode = "cloud";
+    let modelMode = "bohr";
     let bohrMotion = "dynamic";
     let cloudMode = "fill";
 
+    function normalizeDir(v) {
+      const n = Math.hypot(v.x, v.y, v.z) || 1;
+      return { x: v.x / n, y: v.y / n, z: v.z / n };
+    }
+
+    function getCloudStagePalette() {
+      // Keep electron-cloud stage close to the teaching-video style (dark stage + red/blue phase colors)
+      return {
+        bgA: "rgba(22, 22, 22, 0.995)",
+        bgB: "rgba(34, 34, 34, 0.995)",
+        grid: "rgba(255, 255, 255, 0.02)",
+        axis: "rgba(220, 230, 245, 0.72)",
+        axisText: "rgba(250, 252, 255, 0.95)",
+        phasePos: [255, 54, 66],
+        phaseNeg: [38, 50, 214],
+      };
+    }
+
+    function cloudParticleColor(particle, alphaScale, palette) {
+      const p = palette || getCloudStagePalette();
+      const [r, g, b] = particle.phase > 0 ? p.phasePos : p.phaseNeg;
+      return `rgba(${r}, ${g}, ${b}, ${Math.max(0, Math.min(1, particle.a * alphaScale))})`;
+    }
+
+    function phaseColor(sign, alpha, palette) {
+      const p = palette || getCloudStagePalette();
+      const [r, g, b] = sign > 0 ? p.phasePos : p.phaseNeg;
+      return `rgba(${r}, ${g}, ${b}, ${Math.max(0, Math.min(1, alpha))})`;
+    }
+
+    function phaseStrokeColor(sign, alpha, palette) {
+      return phaseColor(sign, alpha, palette);
+    }
+
+    function drawSplitSphere(ctx, r, alpha, palette, rotate = 0) {
+      ctx.save();
+      ctx.rotate(rotate);
+      // Base volume shadow (gives the sphere body depth before phase coloring)
+      const bodyGrad = ctx.createRadialGradient(-r * 0.2, -r * 0.22, r * 0.08, 0, 0, r * 1.03);
+      bodyGrad.addColorStop(0, "rgba(255,255,255,0.10)");
+      bodyGrad.addColorStop(0.55, "rgba(15,18,30,0.12)");
+      bodyGrad.addColorStop(1, "rgba(0,0,0,0.34)");
+      ctx.fillStyle = bodyGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 1.02, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, r, Math.PI / 2, Math.PI * 1.5);
+      ctx.closePath();
+      const leftGrad = ctx.createRadialGradient(-r * 0.25, -r * 0.2, r * 0.12, 0, 0, r);
+      leftGrad.addColorStop(0, phaseColor(-1, alpha * 1.15, palette));
+      leftGrad.addColorStop(0.65, phaseColor(-1, alpha * 0.6, palette));
+      leftGrad.addColorStop(1, phaseColor(-1, alpha * 0.24, palette));
+      ctx.fillStyle = leftGrad;
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = phaseColor(-1, 0.28, palette);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, r, -Math.PI / 2, Math.PI / 2);
+      ctx.closePath();
+      const rightGrad = ctx.createRadialGradient(r * 0.2, -r * 0.2, r * 0.1, 0, 0, r);
+      rightGrad.addColorStop(0, phaseColor(1, alpha * 1.15, palette));
+      rightGrad.addColorStop(0.65, phaseColor(1, alpha * 0.62, palette));
+      rightGrad.addColorStop(1, phaseColor(1, alpha * 0.24, palette));
+      ctx.fillStyle = rightGrad;
+      ctx.shadowColor = phaseColor(1, 0.28, palette);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // seam shadow for a more spherical phase split
+      ctx.strokeStyle = "rgba(0,0,0,0.22)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, -r);
+      ctx.lineTo(0, r);
+      ctx.stroke();
+
+      // specular highlight
+      const hi = ctx.createRadialGradient(-r * 0.22, -r * 0.32, r * 0.02, -r * 0.22, -r * 0.32, r * 0.42);
+      hi.addColorStop(0, "rgba(255,255,255,0.40)");
+      hi.addColorStop(0.45, "rgba(255,255,255,0.16)");
+      hi.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = hi;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = phaseStrokeColor(1, alpha * 0.55, palette);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawCloudLobe(ctx, x, y, rx, ry, sign, alpha, palette, rot = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rot);
+      // Soft shadow body under the lobe to create a raised volume feeling
+      const shadowGrad = ctx.createRadialGradient(rx * 0.12, ry * 0.22, 2, 0, 0, Math.max(rx, ry) * 1.15);
+      shadowGrad.addColorStop(0, "rgba(0,0,0,0.24)");
+      shadowGrad.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = shadowGrad;
+      ctx.beginPath();
+      ctx.ellipse(rx * 0.06, ry * 0.08, rx * 1.02, ry * 1.05, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      const grad = ctx.createRadialGradient(rx * 0.18 * (sign > 0 ? 1 : -1), -ry * 0.22, Math.min(rx, ry) * 0.06, 0, 0, Math.max(rx, ry));
+      grad.addColorStop(0, phaseColor(sign, alpha * 1.12, palette));
+      grad.addColorStop(0.55, phaseColor(sign, alpha * 0.68, palette));
+      grad.addColorStop(1, phaseColor(sign, alpha * 0.16, palette));
+      ctx.fillStyle = grad;
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = phaseColor(sign, 0.24, palette);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Specular highlight to enhance 3D appearance
+      const hi = ctx.createRadialGradient(-rx * 0.24, -ry * 0.34, 1, -rx * 0.24, -ry * 0.34, Math.min(rx, ry) * 0.72);
+      hi.addColorStop(0, "rgba(255,255,255,0.28)");
+      hi.addColorStop(0.35, "rgba(255,255,255,0.11)");
+      hi.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = hi;
+      ctx.beginPath();
+      ctx.ellipse(-rx * 0.04, -ry * 0.02, rx * 0.88, ry * 0.88, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = phaseStrokeColor(sign, alpha * 0.55, palette);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx * 0.82, ry * 0.82, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawCloudContourOrbitals(configuration) {
+      const palette = getCloudStagePalette();
+      const displayConfig = pickCloudDisplaySubshells(configuration);
+      const baseRadius = 74;
+      const step = 52;
+      const yaw = rotY * 0.45;
+      const pitchBias = Math.sin(rotX) * 0.18;
+
+      displayConfig.forEach(([label, count], idx) => {
+        const n = Number(label[0]);
+        const type = label[1];
+        const r = (baseRadius + (n - 1) * step) * (0.68 + idx * 0.02);
+        const alpha = Math.max(0.16, 0.36 - (displayConfig.length - 1 - idx) * 0.05);
+        const localRot = yaw + idx * 0.08;
+        const tiltScale = 0.86 + pitchBias + idx * 0.01;
+
+        ctx.save();
+        ctx.rotate(localRot);
+        ctx.scale(1, tiltScale);
+        ctx.globalCompositeOperation = "source-over";
+
+        if (type === "s") {
+          drawSplitSphere(ctx, r * 0.55, alpha, palette, yaw * 0.2);
+        } else if (type === "p") {
+          drawCloudLobe(ctx, 0, -r * 0.68, r * 0.3, r * 0.48, 1, alpha, palette);
+          drawCloudLobe(ctx, 0, r * 0.68, r * 0.3, r * 0.48, -1, alpha, palette);
+          drawCloudLobe(ctx, -r * 0.68, 0, r * 0.26, r * 0.42, -1, alpha * 0.55, palette, Math.PI / 2);
+          drawCloudLobe(ctx, r * 0.68, 0, r * 0.26, r * 0.42, 1, alpha * 0.55, palette, Math.PI / 2);
+        } else if (type === "d") {
+          drawCloudLobe(ctx, -r * 0.62, -r * 0.62, r * 0.22, r * 0.36, 1, alpha, palette, -Math.PI / 4);
+          drawCloudLobe(ctx, r * 0.62, r * 0.62, r * 0.22, r * 0.36, 1, alpha, palette, -Math.PI / 4);
+          drawCloudLobe(ctx, r * 0.62, -r * 0.62, r * 0.22, r * 0.36, -1, alpha, palette, Math.PI / 4);
+          drawCloudLobe(ctx, -r * 0.62, r * 0.62, r * 0.22, r * 0.36, -1, alpha, palette, Math.PI / 4);
+          // dz2-like ring + axial lobes (teaching style)
+          ctx.strokeStyle = phaseStrokeColor(-1, alpha * 0.65, palette);
+          ctx.fillStyle = phaseColor(-1, alpha * 0.18, palette);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, r * 0.42, r * 0.16, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          drawCloudLobe(ctx, 0, -r * 0.88, r * 0.22, r * 0.34, 1, alpha * 0.85, palette);
+          drawCloudLobe(ctx, 0, r * 0.88, r * 0.22, r * 0.34, 1, alpha * 0.85, palette);
+        } else if (type === "f") {
+          const petals = 8;
+          for (let i = 0; i < petals; i++) {
+            const a = (Math.PI * 2 * i) / petals;
+            drawCloudLobe(
+              ctx,
+              Math.cos(a) * r * 0.62,
+              Math.sin(a) * r * 0.62,
+              r * 0.16,
+              r * 0.28,
+              i % 2 === 0 ? 1 : -1,
+              alpha * 0.78,
+              palette,
+              a
+            );
+          }
+        }
+
+        ctx.restore();
+      });
+
+      ctx.globalCompositeOperation = "source-over";
+    }
+
+    function pickCloudDisplaySubshells(configuration) {
+      const occupied = configuration.filter(([, count]) => count > 0);
+      if (!occupied.length) return [];
+      const last = occupied[occupied.length - 1];
+      const maxN = Math.max(...occupied.map(([label]) => Number(label[0])));
+      const selected = [];
+      occupied.forEach((entry) => {
+        const n = Number(entry[0][0]);
+        if (n >= maxN - 1 || entry[0] === last[0]) selected.push(entry);
+      });
+      // Keep the visual clean and focused like the reference video.
+      return selected.slice(-5);
+    }
+
+    function pushCloudLobe(particles, centerRadius, dir, spread, density, phase, alpha, mode) {
+      const lobeRadius = centerRadius;
+      for (let i = 0; i < density; i++) {
+        let p;
+        if (mode === "particle") {
+          p = randomPointAroundDirection(lobeRadius, dir, spread);
+        } else {
+          // Fill mode: dense interior distribution that looks like a solid orbital body.
+          const t = Math.pow(Math.random(), 0.55);
+          p = randomPointAroundDirection(lobeRadius * t, dir, spread * 0.9);
+        }
+        particles.push({
+          ...p,
+          phase,
+          a: alpha * (mode === "particle" ? 1.0 : 1.25),
+        });
+      }
+    }
+
     function buildOrbitalParticles3D(configuration, mode) {
       const particles = [];
-      const baseRadius = 70;
-      const step = 55;
-      const densityScale =
-        mode === "particle" ? 1.0 : 2.0;
+      const baseRadius = 74;
+      const step = 52;
+      const displayConfig = pickCloudDisplaySubshells(configuration);
+      const densityScale = mode === "particle" ? 1.0 : 1.8;
 
       const dirs = {
-        x: { x: 1, y: 0, z: 0 },
-        y: { x: 0, y: 1, z: 0 },
-        z: { x: 0, y: 0, z: 1 },
-        xy: { x: 1, y: 1, z: 0 },
-        xz: { x: 1, y: 0, z: 1 },
-        yz: { x: 0, y: 1, z: 1 },
-        nx: { x: -1, y: 0, z: 0 },
-        ny: { x: 0, y: -1, z: 0 },
-        nz: { x: 0, y: 0, z: -1 },
+        x: normalizeDir({ x: 1, y: 0, z: 0 }),
+        y: normalizeDir({ x: 0, y: 1, z: 0 }),
+        z: normalizeDir({ x: 0, y: 0, z: 1 }),
+        xy: normalizeDir({ x: 1, y: 1, z: 0 }),
+        xny: normalizeDir({ x: 1, y: -1, z: 0 }),
+        xz: normalizeDir({ x: 1, y: 0, z: 1 }),
+        xnz: normalizeDir({ x: 1, y: 0, z: -1 }),
+        yz: normalizeDir({ x: 0, y: 1, z: 1 }),
+        ynz: normalizeDir({ x: 0, y: 1, z: -1 }),
       };
 
-      configuration.forEach(([label, count]) => {
+      displayConfig.forEach(([label, count], idx) => {
         const n = Number(label[0]);
         const type = label[1];
         const r = baseRadius + (n - 1) * step;
-        const density = Math.max(180, count * 44) * densityScale;
+        const innerFactor = Math.max(0.48, 0.95 - (displayConfig.length - 1 - idx) * 0.09);
+        const alphaBase = Math.max(0.12, 0.34 - (displayConfig.length - 1 - idx) * 0.04);
 
         if (type === "s") {
+          const density = Math.floor(Math.max(700, 1200 + count * 160) * densityScale * innerFactor);
           for (let i = 0; i < density; i++) {
-            const p = randomPointInSphere(r * 0.65);
-            particles.push({ ...p, a: 0.18 });
+            const t = mode === "particle" ? Math.pow(Math.random(), 0.75) : Math.cbrt(Math.random());
+            const p = randomPointInSphere(r * 0.72 * t);
+            const phase = p.x >= 0 ? 1 : -1; // hemisphere coloring to mimic the reference phase split
+            particles.push({ ...p, phase, a: alphaBase * (mode === "particle" ? 0.85 : 1.15) });
           }
           return;
         }
 
         if (type === "p") {
-          const axes = [dirs.x, dirs.y, dirs.z];
-          axes.forEach((axis) => {
-            for (let i = 0; i < density / 3; i++) {
-              particles.push({ ...randomPointAroundDirection(r * 0.95, axis, 0.26), a: 0.16 });
-              particles.push({ ...randomPointAroundDirection(r * 0.95, { x: -axis.x, y: -axis.y, z: -axis.z }, 0.26), a: 0.16 });
-            }
+          const axisSets = [dirs.x, dirs.y, dirs.z];
+          const density = Math.floor(Math.max(420, count * 120) * densityScale * innerFactor);
+          axisSets.forEach((axis, axisIdx) => {
+            const axisWeight = axisIdx === 0 ? 1 : 0.9;
+            const each = Math.floor((density / 3) * axisWeight);
+            pushCloudLobe(particles, r * 0.78, axis, 0.22, each, 1, alphaBase, mode);
+            pushCloudLobe(particles, r * 0.78, { x: -axis.x, y: -axis.y, z: -axis.z }, 0.22, each, -1, alphaBase, mode);
           });
           return;
         }
 
         if (type === "d") {
-          const lobes = [dirs.x, dirs.y, dirs.z, dirs.xy, dirs.xz, dirs.yz];
-          lobes.forEach((axis) => {
-            const norm = Math.hypot(axis.x, axis.y, axis.z);
-            const dir = { x: axis.x / norm, y: axis.y / norm, z: axis.z / norm };
-            for (let i = 0; i < density / 4; i++) {
-              particles.push({ ...randomPointAroundDirection(r * 0.85, dir, 0.2), a: 0.14 });
-              particles.push({ ...randomPointAroundDirection(r * 0.85, { x: -dir.x, y: -dir.y, z: -dir.z }, 0.2), a: 0.14 });
-            }
+          const dLobes = [dirs.xy, dirs.xny, dirs.xz, dirs.xnz, dirs.yz, dirs.ynz];
+          const density = Math.floor(Math.max(300, count * 90) * densityScale * innerFactor);
+          dLobes.forEach((dir, i) => {
+            pushCloudLobe(particles, r * 0.68, dir, 0.16, Math.floor(density / 6), i % 2 === 0 ? 1 : -1, alphaBase * 0.95, mode);
           });
+          // simplified torus-like dz2 ring (video style emphasis)
+          const ringCount = Math.floor((mode === "particle" ? 220 : 520) * innerFactor);
+          for (let i = 0; i < ringCount; i++) {
+            const a = Math.random() * Math.PI * 2;
+            const rr = r * (0.33 + Math.random() * 0.07);
+            const jitter = randomPointInSphere(mode === "particle" ? 6 : 9);
+            particles.push({
+              x: Math.cos(a) * rr + jitter.x * 0.5,
+              y: Math.sin(a) * rr * 0.78 + jitter.y * 0.35,
+              z: jitter.z * 0.28,
+              phase: -1,
+              a: alphaBase * 0.8,
+            });
+          }
           return;
         }
 
         if (type === "f") {
-          const lobes = [
-            dirs.x, dirs.y, dirs.z,
-            dirs.xy, dirs.xz, dirs.yz,
-            { x: 1, y: -1, z: 0 },
-            { x: 1, y: 0, z: -1 },
-            { x: 0, y: 1, z: -1 },
-          ];
-          lobes.forEach((axis) => {
-            const norm = Math.hypot(axis.x, axis.y, axis.z);
-            const dir = { x: axis.x / norm, y: axis.y / norm, z: axis.z / norm };
-            for (let i = 0; i < density / 6; i++) {
-              particles.push({ ...randomPointAroundDirection(r * 0.75, dir, 0.17), a: 0.12 });
-              particles.push({ ...randomPointAroundDirection(r * 0.75, { x: -dir.x, y: -dir.y, z: -dir.z }, 0.17), a: 0.12 });
-            }
+          const fLobes = [dirs.x, dirs.y, dirs.z, dirs.xy, dirs.xny, dirs.xz, dirs.xnz, dirs.yz, dirs.ynz];
+          const density = Math.floor(Math.max(240, count * 64) * densityScale * innerFactor);
+          fLobes.forEach((dir, i) => {
+            pushCloudLobe(particles, r * 0.56, dir, 0.14, Math.floor(density / 9), i % 2 === 0 ? 1 : -1, alphaBase * 0.9, mode);
           });
         }
       });
@@ -5820,7 +6133,7 @@
 
     function buildOrbitalDiagram(configuration) {
       orbitalDiagram.innerHTML = "";
-      if (modelMode === "bohr") {
+      if (orbitalPanelViewMode === "atomic") {
         const element = elements[currentZ - 1];
         const name = currentLang !== "zh"
           ? (element?.en || "Unknown")
@@ -6481,6 +6794,7 @@
     ];
 
     let currentAcidId = "";
+    let acidTrendCollapsed = false;
 
     function formatAcidFormula(formula) {
       return String(formula).replace(/(\d+)/g, "<sub>$1</sub>");
@@ -6490,6 +6804,38 @@
       return String(text || "")
         .replace(/Ka(\d+)/g, "Ka<sub>$1</sub>")
         .replace(/10\^(-?\d+)/g, "10<sup>$1</sup>");
+    }
+
+    function buildTrendPanel(container, titleKey, noteKey, rowsRenderer, collapsed, onToggle) {
+      container.innerHTML = "";
+      container.classList.toggle("is-collapsed", !!collapsed);
+
+      const headerRow = document.createElement("div");
+      headerRow.className = "trend-header-row";
+
+      const title = document.createElement("h4");
+      title.className = "hydride-trend-title";
+      title.textContent = t(titleKey);
+      headerRow.appendChild(title);
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.type = "button";
+      toggleBtn.className = "trend-toggle-btn";
+      toggleBtn.textContent = collapsed ? t("trend_expand") : t("trend_collapse");
+      toggleBtn.addEventListener("click", onToggle);
+      headerRow.appendChild(toggleBtn);
+      container.appendChild(headerRow);
+
+      const content = document.createElement("div");
+      content.className = "trend-content";
+
+      const note = document.createElement("p");
+      note.className = "hydride-trend-note";
+      note.textContent = t(noteKey);
+      content.appendChild(note);
+
+      rowsRenderer(content);
+      container.appendChild(content);
     }
 
     function renderAcidDetail(acid) {
@@ -6512,22 +6858,25 @@
 
     function renderOxyacidTrend(activeFamily = "") {
       if (!oxyacidTrend) return;
-      oxyacidTrend.innerHTML = "";
-      const title = document.createElement("h4");
-      title.className = "hydride-trend-title";
-      title.textContent = t("acid_trend_title");
-      oxyacidTrend.appendChild(title);
-      const note = document.createElement("p");
-      note.className = "hydride-trend-note";
-      note.textContent = t("acid_trend_note");
-      oxyacidTrend.appendChild(note);
-      oxyacidTrendRows.forEach((row) => {
-        const item = document.createElement("div");
-        item.className = "hydride-trend-row";
-        if (activeFamily && row.title.includes(activeFamily.replace("元素", ""))) item.classList.add("active");
-        item.innerHTML = `<span class="hydride-trend-family">${row.title}：</span>${formatAcidFormula(row.chain)}<div class="hydride-trend-note" style="margin-top:4px">${row.note}</div>`;
-        oxyacidTrend.appendChild(item);
-      });
+      buildTrendPanel(
+        oxyacidTrend,
+        "acid_trend_title",
+        "acid_trend_note",
+        (content) => {
+          oxyacidTrendRows.forEach((row) => {
+            const item = document.createElement("div");
+            item.className = "hydride-trend-row";
+            if (activeFamily && row.title.includes(activeFamily.replace("元素", ""))) item.classList.add("active");
+            item.innerHTML = `<span class="hydride-trend-family">${row.title}：</span>${formatAcidFormula(row.chain)}<div class="hydride-trend-note" style="margin-top:4px">${row.note}</div>`;
+            content.appendChild(item);
+          });
+        },
+        acidTrendCollapsed,
+        () => {
+          acidTrendCollapsed = !acidTrendCollapsed;
+          renderOxyacidTrend(activeFamily);
+        }
+      );
     }
 
     function renderAcidList() {
@@ -6580,6 +6929,26 @@
 
     const hydrideDictionary = [
       {
+        family: "碱金属",
+        items: [
+          { id: "hyd_lih", name: "氢化锂", formula: "LiH", structure: "典型离子型氢化物（盐型氢化物），由 Li+ 与 H- 构成。", property: "与水反应放出 H2，表现强还原性。", note: "常用于有机合成中的强碱/还原体系前体。"},
+          { id: "hyd_nah", name: "氢化钠", formula: "NaH", structure: "离子型氢化物，固体中含 H-。", property: "遇水剧烈反应放氢，常作强碱。", note: "有机反应中常用于脱质子。"},
+          { id: "hyd_kh", name: "氢化钾", formula: "KH", structure: "碱金属离子型氢化物。", property: "反应活性高于 NaH，需隔绝水和空气湿气。", note: "常作更强碱性氢化物试剂。"},
+          { id: "hyd_rbh", name: "氢化铷", formula: "RbH", structure: "重碱金属离子型氢化物。", property: "活性强，易与水/酸反应放氢。", note: "教学中多用于趋势讨论。"},
+          { id: "hyd_csh", name: "氢化铯", formula: "CsH", structure: "碱金属最重常见成员的离子型氢化物。", property: "活性极强，操作要求高。", note: "常用于展示碱金属氢化物反应活性趋势。"},
+        ],
+      },
+      {
+        family: "碱土金属",
+        items: [
+          { id: "hyd_beh2", name: "氢化铍", formula: "BeH2", structure: "共价特征明显，常呈聚合结构。", property: "不同于典型盐型氢化物，键合更偏共价。", note: "体现 Be 的特殊性（小半径、高极化能力）。"},
+          { id: "hyd_mgh2", name: "氢化镁", formula: "MgH2", structure: "以离子性为主的金属氢化物。", property: "可储氢，受热分解放出 H2。", note: "储氢材料研究中常见。"},
+          { id: "hyd_cah2", name: "氢化钙", formula: "CaH2", structure: "典型离子型氢化物（H-）。", property: "与水反应放氢，常作干燥剂/还原剂。", note: "实验室常用于有机溶剂干燥。"},
+          { id: "hyd_srh2", name: "氢化锶", formula: "SrH2", structure: "碱土金属离子型氢化物。", property: "与水反应生成 Sr(OH)2 并放氢。", note: "更多用于趋势与材料化学讨论。"},
+          { id: "hyd_bah2", name: "氢化钡", formula: "BaH2", structure: "重碱土金属离子型氢化物。", property: "反应活性较高，易与水/酸反应放氢。", note: "可用于制氢与无机合成场景讨论。"},
+        ],
+      },
+      {
         family: "碳族元素",
         items: [
           { id: "hyd_ch4", name: "甲烷", formula: "CH4", structure: "中心碳近似 sp3 杂化，四面体构型。", property: "最简单烷烃，化学性质较稳定。", note: "天然气主要成分之一，可燃。"},
@@ -6622,6 +6991,7 @@
     ];
 
     let currentHydrideId = "";
+    let hydrideTrendCollapsed = false;
 
     function getHydrideFamilyById(id) {
       for (let i = 0; i < hydrideDictionary.length; i += 1) {
@@ -6633,30 +7003,31 @@
 
     function renderHydrideTrend(activeFamily = "") {
       if (!hydrideTrend) return;
-      hydrideTrend.innerHTML = "";
-      const title = document.createElement("h4");
-      title.className = "hydride-trend-title";
-      title.textContent = t("hydride_trend_title");
-      hydrideTrend.appendChild(title);
-
-      const note = document.createElement("p");
-      note.className = "hydride-trend-note";
-      note.textContent = t("hydride_trend_note");
-      hydrideTrend.appendChild(note);
-
-      hydrideDictionary.forEach((group) => {
-        const row = document.createElement("div");
-        row.className = "hydride-trend-row";
-        if (group.family === activeFamily) row.classList.add("active");
-        const family = document.createElement("span");
-        family.className = "hydride-trend-family";
-        family.textContent = `${group.family}：`;
-        row.appendChild(family);
-        const chain = document.createElement("span");
-        chain.innerHTML = group.items.map((item) => formatAcidFormula(item.formula)).join(" &gt; ");
-        row.appendChild(chain);
-        hydrideTrend.appendChild(row);
-      });
+      buildTrendPanel(
+        hydrideTrend,
+        "hydride_trend_title",
+        "hydride_trend_note",
+        (content) => {
+          hydrideDictionary.forEach((group) => {
+            const row = document.createElement("div");
+            row.className = "hydride-trend-row";
+            if (group.family === activeFamily) row.classList.add("active");
+            const family = document.createElement("span");
+            family.className = "hydride-trend-family";
+            family.textContent = `${group.family}：`;
+            row.appendChild(family);
+            const chain = document.createElement("span");
+            chain.innerHTML = group.items.map((item) => formatAcidFormula(item.formula)).join(" &gt; ");
+            row.appendChild(chain);
+            content.appendChild(row);
+          });
+        },
+        hydrideTrendCollapsed,
+        () => {
+          hydrideTrendCollapsed = !hydrideTrendCollapsed;
+          renderHydrideTrend(activeFamily);
+        }
+      );
     }
 
     function renderHydrideDetail(item) {
@@ -6751,6 +7122,7 @@
     ];
 
     let currentHydroxideId = "";
+    let hydroxideTrendCollapsed = false;
 
     function getHydroxideFamilyById(id) {
       for (let i = 0; i < hydroxideDictionary.length; i += 1) {
@@ -6762,22 +7134,25 @@
 
     function renderHydroxideTrend(activeFamily = "") {
       if (!hydroxideTrend) return;
-      hydroxideTrend.innerHTML = "";
-      const title = document.createElement("h4");
-      title.className = "hydride-trend-title";
-      title.textContent = t("hydroxide_trend_title");
-      hydroxideTrend.appendChild(title);
-      const note = document.createElement("p");
-      note.className = "hydride-trend-note";
-      note.textContent = t("hydroxide_trend_note");
-      hydroxideTrend.appendChild(note);
-      hydroxideTrendRows.forEach((row) => {
-        const item = document.createElement("div");
-        item.className = "hydride-trend-row";
-        if (row.family === activeFamily) item.classList.add("active");
-        item.innerHTML = `<span class="hydride-trend-family">${row.family}：</span>${formatAcidFormula(row.chain)}<div class="hydride-trend-note" style="margin-top:4px">${row.note}</div>`;
-        hydroxideTrend.appendChild(item);
-      });
+      buildTrendPanel(
+        hydroxideTrend,
+        "hydroxide_trend_title",
+        "hydroxide_trend_note",
+        (content) => {
+          hydroxideTrendRows.forEach((row) => {
+            const item = document.createElement("div");
+            item.className = "hydride-trend-row";
+            if (row.family === activeFamily) item.classList.add("active");
+            item.innerHTML = `<span class="hydride-trend-family">${row.family}：</span>${formatAcidFormula(row.chain)}<div class="hydride-trend-note" style="margin-top:4px">${row.note}</div>`;
+            content.appendChild(item);
+          });
+        },
+        hydroxideTrendCollapsed,
+        () => {
+          hydroxideTrendCollapsed = !hydroxideTrendCollapsed;
+          renderHydroxideTrend(activeFamily);
+        }
+      );
     }
 
     function renderHydroxideDetail(item) {
@@ -8284,6 +8659,12 @@
       return formatConfiguration(valence);
     }
 
+    function configDisplayTextForMode(configuration, z, mode) {
+      if (mode === "noble") return formatNobleGas(configuration, z);
+      if (mode === "valence") return formatValence(configuration);
+      return formatConfiguration(configuration);
+    }
+
     function configForMode(configuration, z, mode) {
       if (mode === "noble") {
         const nobleGasesList = [2, 10, 18, 36, 54, 86];
@@ -8355,12 +8736,7 @@
         `${t("energy_levels")}：<strong>${energyLevels}</strong>` +
         categoryLine +
         radioLine;
-      let configDisplay = configText;
-      if (configMode.value === "noble") {
-        configDisplay = formatNobleGas(configuration, z);
-      } else if (configMode.value === "valence") {
-        configDisplay = formatValence(configuration);
-      }
+      const configDisplay = configDisplayTextForMode(configuration, z, configMode.value);
       configBox.innerHTML = `<strong>${configDisplay}</strong>`;
       buildOrbitalDiagram(configForMode(configuration, z, configMode.value));
     }
@@ -8413,7 +8789,8 @@
         div.innerHTML = `<div class="num">${z}</div>${sym}<div class="mass">${display}</div>`;
       } else if (mode === "electronegativity") {
         const en = electronegativity[z];
-        const display = Number.isFinite(en) ? en.toFixed(2).replace(/\.00$/, "") : "-";
+        // Use the common Pauling classroom display style (e.g., F=4.0, Li=1.0).
+        const display = Number.isFinite(en) ? en.toFixed(1) : "-";
         div.title = Number.isFinite(en)
           ? `${sym} (${z}) ${t("electronegativity")}: ${display}`
           : `${sym} (${z}) ${t("electronegativity")}: -`;
@@ -8672,16 +9049,14 @@
       const { configuration, shellTotals } = computeConfiguration(z);
       currentConfig = configuration;
       currentShells = shellTotals;
-      cloudPoints = buildCloud(currentShells);
-      if (modelMode === "cloud") orbitalParticles = buildOrbitalParticles3D(configuration, cloudMode);
       updateUI(z, currentShells, configuration);
       updatePtableView();
       syncTableHighlight(z);
     }
 
     let currentShells = computeConfiguration(Number(zInput.value)).shellTotals;
-    let cloudPoints = buildCloud(currentShells);
-    let orbitalParticles = buildOrbitalParticles3D(currentConfig, cloudMode);
+    let cloudPoints = [];
+    let orbitalParticles = [];
 
     zInput.addEventListener("input", (e) => setZ(e.target.value));
     zSlider.addEventListener("input", (e) => {
@@ -9090,27 +9465,30 @@
     }
 
     function updateModelControls() {
-      const cloudEnabled = modelMode === "cloud";
-      const bohrEnabled = modelMode === "bohr";
-      cloudModeSelect.disabled = !cloudEnabled;
-      cloudModeRow.classList.toggle("disabled", !cloudEnabled);
-      bohrMotionSelect.disabled = !bohrEnabled;
-      bohrMotionRow.classList.toggle("disabled", !bohrEnabled);
+      bohrMotionSelect.disabled = false;
+      bohrMotionRow.classList.remove("disabled");
     }
 
-    function applyModelMode(value) {
-      modelMode = value === "bohr" ? "bohr" : "cloud";
-      localStorage.setItem("modelMode", modelMode);
+    function applyModelMode() {
+      // 电子云模型已移除，统一使用波尔模型
+      modelMode = "bohr";
+      localStorage.setItem("modelMode", "bohr");
       updateModelControls();
-      if (modelMode === "cloud") {
-        orbitalParticles = buildOrbitalParticles3D(currentConfig, cloudMode);
-      }
       buildOrbitalDiagram(configForMode(currentConfig, currentZ, configMode.value));
     }
 
-    function applyCloudMode(value) {
-      cloudMode = value;
-      localStorage.setItem("cloudMode", value);
+    function updateOrbitalPanelTitle() {
+      if (!orbitalPanelTitle) return;
+      orbitalPanelTitle.textContent = orbitalPanelViewMode === "atomic"
+        ? t("orbital_view_atomic")
+        : t("orbital_view_orbital");
+    }
+
+    function applyOrbitalPanelViewMode(value) {
+      orbitalPanelViewMode = value === "atomic" ? "atomic" : "orbital";
+      localStorage.setItem("orbitalPanelViewMode", orbitalPanelViewMode);
+      updateOrbitalPanelTitle();
+      buildOrbitalDiagram(configForMode(currentConfig, currentZ, configMode.value));
     }
 
     function applyBohrMotion(value) {
@@ -9156,13 +9534,16 @@
       applyToolsNavMode("button");
       toolsNavSelect.value = "button";
     }
-    const savedCloudMode = localStorage.getItem("cloudMode");
-    if (savedCloudMode === "fill" || savedCloudMode === "particle") {
-      applyCloudMode(savedCloudMode);
-      cloudModeSelect.value = savedCloudMode;
+    cloudMode = "fill";
+    const savedOrbitalPanelViewMode = localStorage.getItem("orbitalPanelViewMode");
+    if (savedOrbitalPanelViewMode === "orbital" || savedOrbitalPanelViewMode === "atomic" || savedOrbitalPanelViewMode === "config") {
+      orbitalPanelViewMode = savedOrbitalPanelViewMode === "config" ? "atomic" : savedOrbitalPanelViewMode;
+      orbitalPanelViewModeSelect.value = orbitalPanelViewMode;
     } else {
-      applyCloudMode("fill");
+      orbitalPanelViewMode = "atomic";
+      orbitalPanelViewModeSelect.value = "atomic";
     }
+    updateOrbitalPanelTitle();
     const savedSolubilityHydrolysis = localStorage.getItem("solubilityHydrolysis");
     if (savedSolubilityHydrolysis === "consider" || savedSolubilityHydrolysis === "ignore") {
       solubilityHydrolysis = savedSolubilityHydrolysis;
@@ -9179,18 +9560,11 @@
       applyBohrMotion("dynamic");
       bohrMotionSelect.value = "dynamic";
     }
-    const savedModelMode = localStorage.getItem("modelMode");
-    if (savedModelMode === "bohr" || savedModelMode === "cloud") {
-      applyModelMode(savedModelMode);
-      modelModeSelect.value = savedModelMode;
-    } else {
-      applyModelMode("cloud");
-      modelModeSelect.value = "cloud";
-    }
+    applyModelMode();
     organicState.zoom = Number(organicZoomSlider.value || 100) / 100;
     organicZoomValue.textContent = `${organicZoomSlider.value}%`;
     themeSelect.addEventListener("change", (e) => applyTheme(e.target.value));
-    modelModeSelect.addEventListener("change", (e) => applyModelMode(e.target.value));
+    orbitalPanelViewModeSelect.addEventListener("change", (e) => applyOrbitalPanelViewMode(e.target.value));
     bohrMotionSelect.addEventListener("change", (e) => applyBohrMotion(e.target.value));
     langSelect.addEventListener("change", (e) => {
       const nextLang = e.target.value;
@@ -9202,10 +9576,6 @@
       useNAForParticles = e.target.value === "on";
       localStorage.setItem("useNA", e.target.value);
       computeMoleConversion();
-    });
-    cloudModeSelect.addEventListener("change", (e) => {
-      applyCloudMode(e.target.value);
-      if (modelMode === "cloud") orbitalParticles = buildOrbitalParticles3D(currentConfig, cloudMode);
     });
     solubilityHydrolysisMode.addEventListener("change", (e) => {
       solubilityHydrolysis = e.target.value === "ignore" ? "ignore" : "consider";
@@ -9307,16 +9677,47 @@
       return { x: p.x * k * scale, y: p.y * k * scale, k, z };
     }
 
-    function drawAxes(ctx, scale) {
-      const axes = [
-        { a: { x: -240, y: 0, z: 0 }, b: { x: 240, y: 0, z: 0 } },
-        { a: { x: 0, y: -240, z: 0 }, b: { x: 0, y: 240, z: 0 } },
-        { a: { x: 0, y: 0, z: -240 }, b: { x: 0, y: 0, z: 240 } },
-      ];
-      ctx.strokeStyle = isLightTheme()
-        ? "rgba(15, 25, 40, 0.35)"
-        : "rgba(233, 241, 255, 0.15)";
+    function drawCloudStage(width, height) {
+      const palette = getCloudStagePalette();
+      const grad = ctx.createLinearGradient(0, 0, width, height);
+      grad.addColorStop(0, palette.bgA);
+      grad.addColorStop(1, palette.bgB);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      const glow = ctx.createRadialGradient(width * 0.5, height * 0.48, 20, width * 0.5, height * 0.48, Math.max(width, height) * 0.52);
+      glow.addColorStop(0, "rgba(95, 165, 255, 0.08)");
+      glow.addColorStop(0.45, "rgba(80, 125, 255, 0.05)");
+      glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.strokeStyle = palette.grid;
       ctx.lineWidth = 1;
+      const grid = 30;
+      for (let x = 0; x <= width; x += grid) {
+        ctx.beginPath();
+        ctx.moveTo(x + 0.5, 0);
+        ctx.lineTo(x + 0.5, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= height; y += grid) {
+        ctx.beginPath();
+        ctx.moveTo(0, y + 0.5);
+        ctx.lineTo(width, y + 0.5);
+        ctx.stroke();
+      }
+    }
+
+    function drawAxes(ctx, scale) {
+      const palette = getCloudStagePalette();
+      const axes = [
+        { a: { x: -240, y: 0, z: 0 }, b: { x: 240, y: 0, z: 0 }, label: "+x" },
+        { a: { x: 0, y: -240, z: 0 }, b: { x: 0, y: 240, z: 0 }, label: "+y" },
+        { a: { x: 0, y: 0, z: -240 }, b: { x: 0, y: 0, z: 240 }, label: "+z" },
+      ];
+      ctx.strokeStyle = palette.axis;
+      ctx.lineWidth = 1.3;
       axes.forEach((axis) => {
         const ra = rotatePoint(axis.a);
         const rb = rotatePoint(axis.b);
@@ -9326,6 +9727,25 @@
         ctx.moveTo(pa.x, pa.y);
         ctx.lineTo(pb.x, pb.y);
         ctx.stroke();
+
+        // arrow head on positive direction
+        const dx = pb.x - pa.x;
+        const dy = pb.y - pa.y;
+        const len = Math.hypot(dx, dy) || 1;
+        const ux = dx / len;
+        const uy = dy / len;
+        const ah = 10;
+        ctx.beginPath();
+        ctx.moveTo(pb.x, pb.y);
+        ctx.lineTo(pb.x - ux * ah - uy * ah * 0.45, pb.y - uy * ah + ux * ah * 0.45);
+        ctx.lineTo(pb.x - ux * ah + uy * ah * 0.45, pb.y - uy * ah - ux * ah * 0.45);
+        ctx.closePath();
+        ctx.fillStyle = palette.axis;
+        ctx.fill();
+
+        ctx.fillStyle = palette.axisText;
+        ctx.font = "12px system-ui, sans-serif";
+        ctx.fillText(axis.label, pb.x + 6, pb.y - 6);
       });
     }
 
@@ -9423,6 +9843,9 @@
     function draw() {
       const { width, height } = canvas.getBoundingClientRect();
       ctx.clearRect(0, 0, width, height);
+      if (modelMode === "cloud") {
+        drawCloudStage(width, height);
+      }
       const now = performance.now();
       const dtSec = Math.min(0.05, Math.max(0.001, (now - lastFrameMs) / 1000));
       lastFrameMs = now;
@@ -9437,15 +9860,16 @@
       ctx.scale(zoom, zoom);
 
       // nucleus
+      const cloudPalette = modelMode === "cloud" ? getCloudStagePalette() : null;
       const nucleusGlow = ctx.createRadialGradient(0, 0, 5, 0, 0, 28 * hoverScale);
-      nucleusGlow.addColorStop(0, "rgba(255, 184, 107, 0.9)");
-      nucleusGlow.addColorStop(1, "rgba(255, 184, 107, 0.0)");
+      nucleusGlow.addColorStop(0, modelMode === "cloud" ? "rgba(255, 126, 90, 0.95)" : "rgba(255, 184, 107, 0.9)");
+      nucleusGlow.addColorStop(1, modelMode === "cloud" ? "rgba(255, 126, 90, 0.0)" : "rgba(255, 184, 107, 0.0)");
       ctx.fillStyle = nucleusGlow;
       ctx.beginPath();
       ctx.arc(0, 0, 28 * hoverScale, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = "rgba(255, 211, 160, 0.9)";
+      ctx.fillStyle = modelMode === "cloud" ? "rgba(255, 88, 72, 0.95)" : "rgba(255, 211, 160, 0.9)";
       ctx.beginPath();
       ctx.arc(0, 0, 8 * hoverScale, 0, Math.PI * 2);
       ctx.fill();
@@ -9456,18 +9880,27 @@
       } else {
         // 3D axes
         drawAxes(ctx, 1);
-
-        const projected = orbitalParticles.map((p) => {
-          const rp = rotatePoint(p);
-          const pp = projectPoint(rp, 1);
-          return { ...pp, a: p.a };
-        });
-        projected.sort((a, b) => a.z - b.z);
-        const size = cloudMode === "particle" ? 2.4 : 2.0;
-        projected.forEach((p) => {
-          ctx.fillStyle = cloudColor(p.a);
-          ctx.fillRect(p.x, p.y, size, size);
-        });
+        if (cloudMode === "fill") {
+          drawCloudContourOrbitals(currentConfig);
+        } else {
+          const projected = orbitalParticles.map((p) => {
+            const rp = rotatePoint(p);
+            const pp = projectPoint(rp, 1);
+            return { ...pp, a: p.a, phase: p.phase || 1 };
+          });
+          projected.sort((a, b) => a.z - b.z);
+          const alphaScale = 1.0;
+          const radiusBase = 1.5;
+          projected.forEach((p) => {
+            const depthScale = Math.max(0.45, Math.min(1.6, p.k * 0.9));
+            const r = radiusBase * depthScale;
+            const fillColor = cloudParticleColor(p, alphaScale, cloudPalette);
+            ctx.fillStyle = fillColor;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
       }
 
       ctx.restore();
