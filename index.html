@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>电子云原子模型</title>
+  <title>化学工作台</title>
   <style>
     :root {
       --bg-1: #0a0f1a;
@@ -108,7 +108,7 @@
       pointer-events: none;
       z-index: 0;
       display: none;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .snowflake,
@@ -721,7 +721,8 @@
       #hydrideModal .modal-card,
       #hydroxideModal .modal-card,
       #organicModal .modal-card,
-      #flameModal .modal-card {
+      #flameModal .modal-card,
+      #galvanicModal .modal-card {
         width: 100vw;
         max-width: 100vw;
         max-height: 100dvh;
@@ -754,7 +755,8 @@
 
       .acid-layout,
       .organic-layout,
-      .flame-layout {
+      .flame-layout,
+      .galvanic-layout {
         grid-template-columns: 1fr;
         height: auto;
         max-height: none;
@@ -767,6 +769,14 @@
       .flame-right {
         min-height: 360px;
         padding: 10px;
+      }
+
+      .galvanic-right {
+        min-height: 340px;
+      }
+
+      .galvanic-stage {
+        height: min(52vh, 380px);
       }
 
       .flame-stage {
@@ -1605,6 +1615,14 @@
       overflow: hidden;
     }
 
+    #galvanicModal .modal-card {
+      width: min(1360px, 98vw);
+      max-height: 94vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
     #hydrideModal .modal-card {
       width: min(980px, 90vw);
       max-height: 86vh;
@@ -1670,6 +1688,1145 @@
       grid-template-columns: 280px 1fr;
       gap: 12px;
       min-height: 460px;
+    }
+
+    .galvanic-layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+      gap: 12px;
+      min-height: min(68vh, 560px);
+    }
+
+    .galvanic-setup-overlay {
+      position: absolute;
+      inset: 58px 12px 12px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 6;
+      background: color-mix(in srgb, var(--bg) 68%, transparent);
+      border-radius: 12px;
+    }
+
+    .galvanic-setup-overlay.show {
+      display: flex;
+    }
+
+    .galvanic-setup-card {
+      width: min(760px, 92%);
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      background: var(--panel-bg-2);
+      padding: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+    }
+
+    .galvanic-setup-title {
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .galvanic-setup-step {
+      display: none;
+      min-height: 220px;
+    }
+
+    .galvanic-setup-step.active {
+      display: block;
+    }
+
+    .galvanic-left {
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      background: var(--panel-bg-2);
+      padding: 10px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .galvanic-oobe {
+      border: 1px solid var(--panel-border);
+      background: var(--panel-bg-2);
+      border-radius: 14px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .galvanic-oobe-hidden {
+      display: none !important;
+    }
+
+    .galvanic-runtime-actions {
+      margin-top: 2px;
+    }
+
+    .galvanic-oobe-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .galvanic-oobe-steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .galvanic-step-chip {
+      border: 1px solid var(--panel-border);
+      background: var(--btn-bg);
+      color: var(--text-dim);
+      border-radius: 999px;
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+
+    .galvanic-step-chip.active {
+      border-color: var(--accent);
+      color: var(--text);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+    }
+
+    .galvanic-step-panel {
+      display: none;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 10px;
+      background: color-mix(in srgb, var(--panel-bg) 70%, transparent);
+      min-height: 116px;
+    }
+
+    .galvanic-step-panel.active {
+      display: block;
+    }
+    #galvanicPrevStepBtn,
+    #galvanicNextStepBtn,
+    .galvanic-oobe-steps,
+    .galvanic-step-panel {
+      display: none !important;
+    }
+
+    .galvanic-choice-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .galvanic-choice-card {
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--panel-bg-2) 80%, transparent);
+      min-height: 56px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .galvanic-choice-card.active {
+      border-width: 2px;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
+    }
+
+    .galvanic-right {
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      background: var(--panel-bg-2);
+      padding: 12px;
+      display: grid;
+      place-items: center;
+      min-height: 300px;
+    }
+
+    .galvanic-stage {
+      width: min(100%, 860px);
+      height: min(56vh, 460px);
+      min-height: 320px;
+      border-radius: 14px;
+      border: 1px solid var(--panel-border);
+      background:
+        radial-gradient(circle at 50% 10%, rgba(110, 170, 255, 0.1), transparent 52%),
+        linear-gradient(180deg, rgba(14, 20, 30, 0.9), rgba(12, 18, 26, 0.96));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .galvanic-legend {
+      position: absolute;
+      right: 12px;
+      top: 10px;
+      z-index: 3;
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      color: #d8e8ff;
+    }
+
+    .galvanic-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .galvanic-legend i {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .galvanic-legend .legend-ion {
+      background: #ffb5d6;
+      box-shadow: 0 0 6px rgba(255, 181, 214, 0.7);
+    }
+
+    .galvanic-legend .legend-electron {
+      background: #7df1ff;
+      box-shadow: 0 0 6px rgba(125, 241, 255, 0.7);
+    }
+
+    .galvanic-mode {
+      position: absolute;
+      inset: 0;
+    }
+
+    .galvanic-stage.mode-double .galvanic-mode-double {
+      display: block;
+    }
+
+    .galvanic-stage.mode-double .galvanic-mode-single {
+      display: none;
+    }
+
+    .galvanic-stage.mode-single .galvanic-mode-double {
+      display: none;
+    }
+
+    .galvanic-stage.mode-single .galvanic-mode-single {
+      display: block;
+    }
+
+    .galvanic-wire {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      top: 14%;
+      height: 0;
+      border-top: 2px solid #58d6ff;
+      border-radius: 999px;
+      background: transparent;
+      box-shadow: 0 0 6px rgba(88, 214, 255, 0.35);
+    }
+
+    .galvanic-stage.disconnected .galvanic-wire {
+      border-top-color: transparent;
+      box-shadow: none;
+    }
+
+    .galvanic-stage.disconnected .galvanic-wire::before,
+    .galvanic-stage.disconnected .galvanic-wire::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      height: 2px;
+      width: calc(50% - 34px);
+      transform: translateY(-50%);
+      background: rgba(88, 214, 255, 0.72);
+      box-shadow: 0 0 8px rgba(88, 214, 255, 0.34);
+    }
+
+    .galvanic-stage.disconnected .galvanic-wire::before {
+      left: 0;
+    }
+
+    .galvanic-stage.disconnected .galvanic-wire::after {
+      right: 0;
+    }
+
+    .galvanic-wire-dot {
+      position: absolute;
+      top: 0;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #58d6ff;
+      transform: translate(-50%, -50%) translateY(1px);
+      box-shadow: 0 0 6px rgba(88, 214, 255, 0.62);
+    }
+
+    .galvanic-wire-dot:nth-child(1) { left: 15%; }
+    .galvanic-wire-dot:nth-child(2) { left: 35%; }
+    .galvanic-wire-dot:nth-child(3) { left: 65%; }
+    .galvanic-wire-dot:nth-child(4) { left: 85%; }
+
+    .galvanic-stage.disconnected .galvanic-wire-dot {
+      opacity: 0.28;
+      box-shadow: none;
+    }
+
+    .galvanic-wire-lead {
+      position: absolute;
+      top: 0;
+      width: 3px;
+      border-radius: 999px;
+      background: rgba(88, 214, 255, 0.9);
+      box-shadow: 0 0 7px rgba(88, 214, 255, 0.4);
+      pointer-events: none;
+    }
+
+    .galvanic-wire-lead.left {
+      left: 0;
+      height: var(--lead-left, 26px);
+      transform: translate(-50%, 0);
+    }
+
+    .galvanic-wire-lead.right {
+      right: 0;
+      height: var(--lead-right, 26px);
+      transform: translate(50%, 0);
+    }
+
+    .galvanic-stage.disconnected .galvanic-electron,
+    .galvanic-stage.disconnected .galvanic-ion,
+    .galvanic-stage.disconnected .galvanic-transfer-ion,
+    .galvanic-stage.disconnected .galvanic-cation-dot,
+    .galvanic-stage.disconnected .galvanic-anion-dot,
+    .galvanic-stage.disconnected .galvanic-bubble {
+      opacity: 0 !important;
+    }
+
+    .galvanic-ammeter {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid #32c66c;
+      color: #32c66c;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      font-weight: 800;
+      background: rgba(16, 24, 34, 0.88);
+      z-index: 2;
+    }
+
+    .galvanic-meter-readout {
+      position: absolute;
+      left: 50%;
+      top: -78px;
+      transform: translateX(-50%);
+      font-size: 12px;
+      font-weight: 800;
+      color: #5ad9ff;
+      text-shadow: 0 0 10px rgba(88, 214, 255, 0.35);
+      white-space: nowrap;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .galvanic-electron {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #7df1ff;
+      box-shadow: 0 0 8px rgba(125, 241, 255, 0.68);
+      top: 50%;
+      transform: translateY(-50%);
+      animation: galvanicElectronFlow 1.6s linear infinite;
+      animation-play-state: running;
+    }
+
+    .galvanic-mode-single .galvanic-wire {
+      left: 16%;
+      right: 16%;
+      top: 14%;
+      border-top-width: 2px;
+      border-radius: 999px;
+    }
+
+    .galvanic-stage.paused .galvanic-electron {
+      animation-play-state: paused;
+      opacity: 0.45;
+    }
+
+    .galvanic-stage.reverse .galvanic-electron {
+      animation-direction: reverse;
+    }
+
+    .galvanic-stage.inactive .galvanic-electron {
+      animation-play-state: paused;
+      opacity: 0.2;
+    }
+
+    .galvanic-stage.paused .galvanic-ion,
+    .galvanic-stage.inactive .galvanic-ion,
+    .galvanic-stage.paused .galvanic-transfer-ion,
+    .galvanic-stage.inactive .galvanic-transfer-ion {
+      animation-play-state: paused;
+      opacity: 0.25;
+    }
+
+    .galvanic-stage.paused .galvanic-cation-dot,
+    .galvanic-stage.paused .galvanic-anion-dot,
+    .galvanic-stage.paused .galvanic-bubble,
+    .galvanic-stage.paused .galvanic-plate.anode::before,
+    .galvanic-stage.inactive .galvanic-cation-dot,
+    .galvanic-stage.inactive .galvanic-anion-dot,
+    .galvanic-stage.inactive .galvanic-bubble,
+    .galvanic-stage.inactive .galvanic-plate.anode::before {
+      animation-play-state: paused;
+    }
+
+    .galvanic-stage.inactive .galvanic-cation-dot,
+    .galvanic-stage.inactive .galvanic-anion-dot,
+    .galvanic-stage.inactive .galvanic-bubble {
+      opacity: 0 !important;
+    }
+
+    .galvanic-stage.blocked .galvanic-electron,
+    .galvanic-stage.blocked .galvanic-ion,
+    .galvanic-stage.blocked .galvanic-transfer-ion,
+    .galvanic-stage.blocked .galvanic-cation-dot,
+    .galvanic-stage.blocked .galvanic-anion-dot,
+    .galvanic-stage.blocked .galvanic-bubble {
+      opacity: 0 !important;
+      animation-play-state: paused;
+    }
+
+    .galvanic-beaker {
+      position: absolute;
+      bottom: 18%;
+      width: 34%;
+      height: 54%;
+      border-radius: 14px 14px 18px 18px;
+      border: 2px solid rgba(190, 220, 255, 0.4);
+      background: linear-gradient(180deg, rgba(170, 220, 255, 0.08), rgba(85, 140, 210, 0.24));
+      display: grid;
+      align-content: start;
+      justify-items: center;
+      padding-top: 10px;
+      box-sizing: border-box;
+    }
+
+    .galvanic-left-cell {
+      left: 10%;
+    }
+
+    .galvanic-right-cell {
+      right: 10%;
+    }
+
+    .galvanic-plate {
+      position: absolute;
+      top: -16%;
+      width: 44px;
+      --plate-height-base: 116%;
+      height: var(--plate-height-base);
+      border-radius: 10px;
+      border: 2px solid rgba(212, 222, 238, 0.95);
+      background: linear-gradient(180deg, rgba(235, 241, 250, 0.98), rgba(158, 172, 195, 0.96));
+      box-shadow: 0 0 14px rgba(215, 228, 248, 0.28);
+      overflow: hidden;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 10px;
+      color: #1e2632;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      font-size: 16px;
+    }
+
+    .galvanic-plate[data-metal="Ag"] {
+      border-color: rgba(226, 232, 242, 0.95);
+      background: linear-gradient(180deg, rgba(244, 247, 253, 0.98), rgba(175, 186, 205, 0.96));
+      color: #1d2430;
+      box-shadow: 0 0 14px rgba(235, 240, 255, 0.35);
+    }
+
+    .galvanic-plate[data-metal="Cu"] {
+      border-color: rgba(210, 126, 74, 0.95);
+      background: linear-gradient(180deg, rgba(235, 156, 106, 0.97), rgba(163, 88, 52, 0.93));
+      color: #2d170d;
+      box-shadow: 0 0 14px rgba(226, 144, 86, 0.32);
+    }
+
+    .galvanic-plate[data-metal="C"] {
+      border-color: rgba(40, 46, 56, 0.95);
+      background: linear-gradient(180deg, rgba(78, 84, 92, 0.96), rgba(24, 28, 35, 0.96));
+      color: #f0f3f7;
+      box-shadow: 0 0 12px rgba(20, 24, 30, 0.45);
+    }
+
+    .galvanic-plate > span {
+      position: relative;
+      z-index: 2;
+    }
+
+    .galvanic-plate::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 0;
+      border-radius: 0 0 8px 8px;
+      background: linear-gradient(180deg, rgba(106, 148, 200, 0), rgba(72, 110, 164, 0.72));
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .galvanic-stage.connected .galvanic-plate.anode::before {
+      animation: none;
+    }
+
+    .galvanic-stage.connected .galvanic-plate.passivated::before {
+      height: 100%;
+      border-radius: 10px;
+      background:
+        linear-gradient(135deg, rgba(225, 237, 250, 0.58), rgba(160, 186, 210, 0.28) 38%, rgba(120, 156, 185, 0.52) 50%, rgba(170, 200, 225, 0.3) 68%, rgba(235, 245, 255, 0.56)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(110, 140, 172, 0.22));
+      box-shadow: inset 0 0 12px rgba(190, 220, 246, 0.48);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .galvanic-plate::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: -26px;
+      width: 4px;
+      height: 26px;
+      border-radius: 999px;
+      background: rgba(88, 214, 255, 0.92);
+      box-shadow: 0 0 8px rgba(88, 214, 255, 0.45);
+    }
+
+    .galvanic-left-cell .galvanic-plate {
+      left: calc(50% - 22px);
+    }
+
+    .galvanic-right-cell .galvanic-plate {
+      left: calc(50% - 22px);
+    }
+
+    .galvanic-polarity {
+      position: absolute;
+      bottom: 6%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 900;
+      background: rgba(16, 24, 34, 0.8);
+      border: 1px solid rgba(220, 236, 255, 0.35);
+      color: #e7f2ff;
+      box-shadow: 0 0 8px rgba(120, 190, 255, 0.25);
+      z-index: 4;
+    }
+
+    .galvanic-mode-single .galvanic-polarity-left {
+      left: 22%;
+      transform: translateX(-50%);
+    }
+
+    .galvanic-mode-single .galvanic-polarity-right {
+      left: 78%;
+      transform: translateX(-50%);
+    }
+
+    .galvanic-mode-double .galvanic-polarity-left {
+      left: 28%;
+      transform: translateX(-50%);
+    }
+
+    .galvanic-mode-double .galvanic-polarity-right {
+      left: 72%;
+      transform: translateX(-50%);
+    }
+
+    .galvanic-plate.anode {
+      /* Corrode upward from the bottom while keeping text and top connector stable. */
+      clip-path: inset(0 0 calc(var(--anode-loss, 0) * 92%) 0 round 10px);
+      transition: clip-path 0.45s linear;
+    }
+
+    .galvanic-single-beaker {
+      position: absolute;
+      left: 15%;
+      right: 15%;
+      bottom: 16%;
+      height: 58%;
+      border-radius: 16px 16px 24px 24px;
+      border: 3px solid rgba(56, 196, 96, 0.8);
+      background: linear-gradient(180deg, rgba(170, 220, 255, 0.08), rgba(85, 140, 210, 0.24));
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-content: start;
+      justify-items: center;
+      padding-top: 10px;
+      box-sizing: border-box;
+    }
+
+    .galvanic-single-beaker .galvanic-plate {
+      top: -18%;
+      --plate-height-base: 118%;
+      height: var(--plate-height-base);
+    }
+
+    .galvanic-single-beaker .galvanic-plate-left {
+      left: 7%;
+    }
+
+    .galvanic-single-beaker .galvanic-plate-right {
+      right: 7%;
+    }
+
+    .galvanic-single-solution {
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      bottom: 10px;
+      margin: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .galvanic-ions {
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: 34%;
+      height: 40%;
+      pointer-events: none;
+    }
+
+    /* Double-cell ions must move only inside the salt bridge channel. */
+    .galvanic-mode-double .galvanic-ions {
+      left: 41%;
+      right: 41%;
+      top: 50%;
+      bottom: auto;
+      height: 18px;
+      transform: translateY(-50%);
+      overflow: hidden;
+      border-radius: 999px;
+      z-index: 5;
+    }
+
+    .galvanic-ion {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 185, 220, 0.95);
+      color: rgba(255, 185, 220, 0.95);
+      box-shadow: 0 0 8px rgba(255, 185, 220, 0.45);
+      animation: galvanicIonFlow 2.6s linear infinite;
+    }
+
+    .galvanic-mode-double .galvanic-ion {
+      top: 50% !important;
+      transform: translate(-50%, -50%);
+      animation-duration: 2.2s;
+    }
+
+    .galvanic-mode-double .galvanic-ion::before {
+      content: attr(data-ion);
+      width: auto;
+      height: auto;
+      font-size: 9px;
+      font-weight: 900;
+      background: none;
+      color: rgba(255, 205, 235, 0.98);
+    }
+
+    .galvanic-mode-double .galvanic-ion::after { display: none; }
+
+    .galvanic-mode-double .galvanic-ion.cation {
+      border-color: rgba(170, 236, 255, 0.96);
+      color: rgba(170, 236, 255, 0.98);
+      box-shadow: 0 0 7px rgba(130, 220, 255, 0.45);
+      animation: galvanicBridgeCation 2.2s linear infinite;
+    }
+
+    .galvanic-mode-double .galvanic-ion.anion {
+      border-color: rgba(255, 194, 229, 0.95);
+      color: rgba(255, 194, 229, 0.98);
+      box-shadow: 0 0 7px rgba(255, 180, 220, 0.45);
+      animation: galvanicBridgeAnion 2.2s linear infinite;
+    }
+
+    .galvanic-stage.cathode-left .galvanic-mode-double .galvanic-ion.cation {
+      animation-name: galvanicBridgeCationLeft;
+    }
+
+    .galvanic-stage.cathode-left .galvanic-mode-double .galvanic-ion.anion {
+      animation-name: galvanicBridgeAnionLeft;
+    }
+
+    .galvanic-bridge-transfer {
+      position: absolute;
+      top: 50%;
+      width: 12%;
+      height: 30%;
+      transform: translateY(-8%);
+      pointer-events: none;
+      z-index: 4;
+      overflow: hidden;
+    }
+
+    .galvanic-bridge-transfer-cation { left: 50%; }
+    .galvanic-bridge-transfer-anion { right: 50%; }
+
+    .galvanic-transfer-ion {
+      position: absolute;
+      width: 34px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 900;
+      animation-duration: 2.7s;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      opacity: 0;
+      white-space: nowrap;
+    }
+
+    .galvanic-transfer-ion.cation {
+      border: 2px solid rgba(170, 236, 255, 0.95);
+      color: rgba(170, 236, 255, 0.98);
+      box-shadow: 0 0 8px rgba(130, 220, 255, 0.42);
+      animation-name: galvanicTransferCation;
+    }
+
+    .galvanic-transfer-ion.anion {
+      border: 2px solid rgba(255, 194, 229, 0.95);
+      color: rgba(255, 194, 229, 0.98);
+      box-shadow: 0 0 8px rgba(255, 180, 220, 0.4);
+      animation-name: galvanicTransferAnion;
+    }
+
+    .galvanic-transfer-ion::before {
+      content: attr(data-ion);
+    }
+
+    .galvanic-transfer-ion:nth-child(2) { animation-delay: -0.9s; }
+    .galvanic-transfer-ion:nth-child(3) { animation-delay: -1.8s; }
+
+    .galvanic-stage.cathode-left .galvanic-transfer-ion.cation {
+      animation-name: galvanicTransferCationLeft;
+    }
+
+    .galvanic-stage.cathode-left .galvanic-transfer-ion.anion {
+      animation-name: galvanicTransferAnionLeft;
+    }
+
+    .galvanic-ion::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 6px;
+      height: 2px;
+      background: rgba(255, 185, 220, 0.95);
+      transform: translate(-50%, -50%);
+    }
+
+    .galvanic-ion::after {
+      content: "←";
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      font-weight: 800;
+      color: rgba(255, 185, 220, 0.95);
+    }
+
+    .galvanic-ion:nth-child(1) { top: 22%; animation-delay: 0s; }
+    .galvanic-ion:nth-child(2) { top: 40%; animation-delay: -0.6s; }
+    .galvanic-ion:nth-child(3) { top: 58%; animation-delay: -1.2s; }
+    .galvanic-ion:nth-child(4) { top: 76%; animation-delay: -1.8s; }
+
+    .galvanic-stage.ion-reverse .galvanic-ion {
+      animation-direction: reverse;
+    }
+
+    .galvanic-stage.ion-reverse .galvanic-ion::after {
+      content: "→";
+    }
+
+    .galvanic-ion-zone {
+      position: absolute;
+      bottom: 34%;
+      width: 18%;
+      height: 16%;
+      pointer-events: none;
+    }
+
+    .galvanic-mode-single .galvanic-ion-label {
+      display: none;
+    }
+
+    .galvanic-cation-zone {
+      right: 24%;
+    }
+
+    .galvanic-anion-zone {
+      left: 24%;
+    }
+
+    .galvanic-stage.cathode-left .galvanic-cation-zone {
+      left: 24%;
+      right: auto;
+    }
+
+    .galvanic-stage.cathode-left .galvanic-anion-zone {
+      right: 24%;
+      left: auto;
+    }
+
+    .galvanic-ion-label {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffd2e6;
+      white-space: normal;
+      max-width: 180px;
+      line-height: 1.2;
+      text-shadow: 0 0 8px rgba(255, 210, 230, 0.35);
+    }
+
+    .galvanic-cation-zone .galvanic-ion-label,
+    .galvanic-anion-zone .galvanic-ion-label {
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+
+    .galvanic-cation-dot,
+    .galvanic-anion-dot {
+      position: absolute;
+      top: auto;
+      min-width: 46px;
+      height: 22px;
+      padding: 0 6px;
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+      animation-play-state: running;
+    }
+
+    .galvanic-cation-dot {
+      border: 2px solid rgba(255, 192, 226, 0.95);
+      box-shadow: 0 0 8px rgba(255, 192, 226, 0.45);
+      animation: galvanicCationMove 2.8s linear infinite;
+    }
+
+    .galvanic-anion-dot {
+      border: 2px solid rgba(255, 192, 226, 0.95);
+      box-shadow: 0 0 8px rgba(255, 192, 226, 0.45);
+      animation: galvanicAnionMove 2.8s linear infinite;
+    }
+
+    .galvanic-cation-dot::before,
+    .galvanic-anion-dot::before {
+      content: attr(data-ion);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 9px;
+      font-weight: 900;
+      line-height: 1;
+      color: rgba(255, 192, 226, 0.95);
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+    }
+
+    .galvanic-cation-dot::after,
+    .galvanic-anion-dot::after {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: 800;
+      color: rgba(255, 192, 226, 0.95);
+    }
+
+    .galvanic-cation-dot::after { content: "→"; }
+    .galvanic-anion-dot::after { content: "←"; }
+
+    .galvanic-stage.cathode-left .galvanic-cation-dot {
+      animation-direction: reverse;
+    }
+
+    .galvanic-stage.cathode-left .galvanic-anion-dot {
+      animation-direction: reverse;
+    }
+
+    .galvanic-stage.cathode-left .galvanic-cation-dot::after { content: "←"; }
+    .galvanic-stage.cathode-left .galvanic-anion-dot::after { content: "→"; }
+
+    .galvanic-cation-zone .galvanic-cation-dot:nth-of-type(2),
+    .galvanic-anion-zone .galvanic-anion-dot:nth-of-type(2) { top: 50%; animation-delay: -0.6s; }
+    .galvanic-cation-zone .galvanic-cation-dot:nth-of-type(3),
+    .galvanic-anion-zone .galvanic-anion-dot:nth-of-type(3) { top: 76%; animation-delay: -1.2s; }
+    .galvanic-cation-zone .galvanic-cation-dot:nth-of-type(1),
+    .galvanic-anion-zone .galvanic-anion-dot:nth-of-type(1) { top: 24%; animation-delay: 0s; }
+
+    .galvanic-cathode-bubbles {
+      position: absolute;
+      width: 88px;
+      height: 42%;
+      right: 9%;
+      bottom: 22%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .galvanic-stage.cathode-left .galvanic-cathode-bubbles {
+      left: 9%;
+      right: auto;
+    }
+
+    .galvanic-bubble {
+      position: absolute;
+      bottom: 0;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      border: 1px solid rgba(225, 244, 255, 0.95);
+      background: rgba(190, 226, 255, 0.28);
+      animation: galvanicBubbleRise 2.2s ease-in infinite;
+      opacity: 0;
+    }
+
+    .galvanic-bubble:nth-child(1) { left: 10%; animation-delay: 0s; }
+    .galvanic-bubble:nth-child(2) { left: 28%; animation-delay: -0.5s; width: 6px; height: 6px; }
+    .galvanic-bubble:nth-child(3) { left: 44%; animation-delay: -1s; width: 8px; height: 8px; }
+    .galvanic-bubble:nth-child(4) { left: 62%; animation-delay: -1.5s; width: 6px; height: 6px; }
+    .galvanic-bubble:nth-child(5) { left: 78%; animation-delay: -1.9s; width: 7px; height: 7px; }
+
+    .galvanic-electrode {
+      font-weight: 800;
+      color: #e8f3ff;
+      background: rgba(18, 26, 44, 0.8);
+      border: 1px solid rgba(130, 200, 255, 0.35);
+      border-radius: 999px;
+      padding: 4px 12px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .galvanic-solution {
+      margin-top: auto;
+      width: 88%;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      text-align: center;
+      padding: 6px 8px;
+      color: #d8e8ff;
+      font-size: 12px;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .galvanic-mode-double .galvanic-solution {
+      position: absolute;
+      left: 12px;
+      bottom: 10px;
+      width: auto;
+      max-width: 54%;
+      margin: 0;
+      padding: 0;
+      text-align: left;
+      z-index: 2;
+      font-size: 12px;
+    }
+
+    .galvanic-bridge {
+      position: absolute;
+      left: 41%;
+      right: 41%;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 18px;
+      border-radius: 999px;
+      text-align: center;
+      font-size: 11px;
+      line-height: 18px;
+      color: #e9f5ff;
+      border: 1px solid rgba(170, 220, 255, 0.6);
+      background: rgba(96, 154, 225, 0.35);
+    }
+
+    .galvanic-flow-label {
+      position: absolute;
+      left: 16px;
+      top: 84px;
+      transform: none;
+      font-size: 13px;
+      font-weight: 700;
+      color: #bdefff;
+      text-shadow: 0 0 10px rgba(120, 210, 255, 0.55);
+      white-space: nowrap;
+      max-width: 36%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 3;
+      padding: 0 4px;
+      border-radius: 6px;
+      background: rgba(10, 18, 30, 0.25);
+      pointer-events: none;
+    }
+
+    @keyframes galvanicElectronFlow {
+      from { left: 0; }
+      to { left: calc(100% - 10px); }
+    }
+
+    @keyframes galvanicIonFlow {
+      from { left: 100%; }
+      to { left: 0; }
+    }
+
+    @keyframes galvanicBridgeCation {
+      from { left: 10%; }
+      to { left: 90%; }
+    }
+
+    @keyframes galvanicBridgeAnion {
+      from { left: 90%; }
+      to { left: 10%; }
+    }
+
+    @keyframes galvanicBridgeCationLeft {
+      from { left: 90%; }
+      to { left: 10%; }
+    }
+
+    @keyframes galvanicBridgeAnionLeft {
+      from { left: 10%; }
+      to { left: 90%; }
+    }
+
+    @keyframes galvanicTransferCation {
+      0% { left: 4%; top: 10%; opacity: 0; }
+      20% { opacity: 1; }
+      100% { left: 88%; top: 80%; opacity: 0; }
+    }
+
+    @keyframes galvanicTransferAnion {
+      0% { right: 4%; top: 10%; opacity: 0; }
+      20% { opacity: 1; }
+      100% { right: 88%; top: 80%; opacity: 0; }
+    }
+
+    @keyframes galvanicTransferCationLeft {
+      0% { right: 4%; top: 10%; opacity: 0; }
+      20% { opacity: 1; }
+      100% { right: 88%; top: 80%; opacity: 0; }
+    }
+
+    @keyframes galvanicTransferAnionLeft {
+      0% { left: 4%; top: 10%; opacity: 0; }
+      20% { opacity: 1; }
+      100% { left: 88%; top: 80%; opacity: 0; }
+    }
+
+    @keyframes galvanicCationMove {
+      from { left: 12%; }
+      to { left: 88%; }
+    }
+
+    @keyframes galvanicAnionMove {
+      from { left: 88%; }
+      to { left: 12%; }
+    }
+
+    @keyframes galvanicBubbleRise {
+      0% {
+        transform: translateY(0) scale(0.7);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.95;
+      }
+      100% {
+        transform: translateY(-95px) scale(1.25);
+        opacity: 0;
+      }
+    }
+
+    @keyframes galvanicAnodeCorrode {
+      0% {
+        height: 2%;
+        opacity: 0.45;
+      }
+      100% {
+        height: 14%;
+        opacity: 0.95;
+      }
+    }
+
+    .std-electrode-list {
+      max-height: min(62vh, 560px);
+      overflow: auto;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      background: var(--panel-bg-2);
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .std-electrode-row {
+      display: grid;
+      grid-template-columns: 44px 110px 1fr 110px;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      background: var(--panel-bg);
+      font-weight: 700;
+    }
+
+    .std-electrode-row .rank {
+      opacity: 0.7;
+      font-size: 12px;
+    }
+
+    .std-electrode-row .sym {
+      font-size: 18px;
+    }
+
+    .std-electrode-row .e0 {
+      text-align: right;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
     }
 
     .flame-layout {
@@ -2290,6 +3447,10 @@
       }
 
       .flame-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .galvanic-layout {
         grid-template-columns: 1fr;
       }
 
@@ -3010,7 +4171,7 @@
     <header>
       <div>
         <div class="title-row">
-          <h1 data-i18n="app_title">电子云原子模型</h1>
+          <h1 data-i18n="app_title">化学工作台</h1>
           <span id="deviceLabel" class="device-label"></span>
         </div>
         <div class="subtitle" data-i18n="subtitle_main">提高核电荷数（Z）即可增加电子并填充到各能层。</div>
@@ -3026,8 +4187,11 @@
       <button id="sideMassBtn" class="tool-side-btn" data-i18n-title="mass_calc" title="相对原子质量计算器">M</button>
       <button id="sideMoleBtn" class="tool-side-btn" data-i18n-title="mole_calc" title="物质的量换算">n=m/M</button>
       <button id="sideOrganicBtn" class="tool-side-btn" data-i18n-title="organic_title" title="有机分子结构">C</button>
+      <button id="sideGalvanicBtn" class="tool-side-btn" data-i18n-title="galvanic_tool" title="原电池">电池</button>
       <button id="sideFlameBtn" class="tool-side-btn" data-i18n-title="flame_test" title="焰色试验">焰</button>
       <button id="sideSolutionBtn" class="tool-side-btn" data-i18n-title="solution_calc" title="溶液浓度计算器">c%</button>
+      <button id="sideBondBtn" class="tool-side-btn" data-i18n-title="bond_checker" title="化学键判断器">Δχ</button>
+      <button id="sideStdElectrodeBtn" class="tool-side-btn" data-i18n-title="std_electrode_title" title="标准电极电势表">E°</button>
       <button id="sideSolubilityBtn" class="tool-side-btn" data-i18n-title="solubility_table" title="离子溶解性表">溶</button>
       <button id="sideAcidBtn" class="tool-side-btn" data-i18n-title="acid_dict" title="最高价含氧酸">高氧</button>
       <button id="sideHydrideBtn" class="tool-side-btn" data-i18n-title="hydride_dict" title="氢化物">H</button>
@@ -3066,7 +4230,7 @@
         </div>
 
         <div class="card">
-          <label for="zoomSlider" data-i18n="zoom">电子云缩放</label>
+          <label for="zoomSlider" data-i18n="zoom">缩放</label>
           <div class="row">
             <input id="zoomSlider" type="range" min="50" max="140" value="100" />
             <span id="zoomValue" class="subtitle">100%</span>
@@ -3278,8 +4442,11 @@
           <button id="openMassTool" data-i18n="mass_calc">相对原子质量计算器</button>
           <button id="openMoleTool" data-i18n="mole_calc">物质的量换算</button>
           <button id="openOrganicTool" data-i18n="organic_title">有机分子结构</button>
+          <button id="openGalvanicTool" data-i18n="galvanic_tool">原电池</button>
           <button id="openFlameTool" data-i18n="flame_test">焰色试验</button>
           <button id="openSolutionTool" data-i18n="solution_calc">溶液浓度计算器</button>
+          <button id="openBondTool" data-i18n="bond_checker">化学键判断器</button>
+          <button id="openStdElectrodeTool" data-i18n="std_electrode_title">标准电极电势表</button>
           <button id="openSolubilityTool" data-i18n="solubility_table">离子溶解性表</button>
           <button id="openAcidTool" data-i18n="acid_dict">最高价含氧酸</button>
           <button id="openHydrideTool" data-i18n="hydride_dict">氢化物</button>
@@ -3319,6 +4486,266 @@
       </div>
       <div class="modal-actions">
         <button id="moleClose" data-i18n="close">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="stdElectrodeModal" class="modal">
+    <div class="modal-card has-back">
+      <button id="stdElectrodeBackBtn" class="modal-back-btn" data-i18n-title="back_to_prev" title="返回上一级">‹</button>
+      <h3 class="modal-title" data-i18n="std_electrode_title">标准电极电势表（E°）</h3>
+      <div class="modal-text">
+        <div class="subtitle" style="margin-bottom: 10px" data-i18n="std_electrode_subtitle">按金属活动性由大到小（先录入版）</div>
+        <div class="std-electrode-list" id="stdElectrodeList"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="stdElectrodeClose" data-i18n="close">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="bondModal" class="modal">
+    <div class="modal-card has-back">
+      <button id="bondBackBtn" class="modal-back-btn" data-i18n-title="back_to_prev" title="返回上一级">‹</button>
+      <h3 class="modal-title" data-i18n="bond_checker">化学键判断器</h3>
+      <div class="modal-text">
+        <div class="row" style="gap: 8px; flex-wrap: wrap">
+          <label for="bondElementA" class="subtitle" style="min-width: 120px" data-i18n="bond_element_a">元素 A</label>
+          <input id="bondElementA" list="bondElementOptions" type="text" data-i18n-placeholder="bond_input_placeholder" placeholder="输入元素符号或名称，如 Na / Cl / 钠 / 氯" style="flex: 1; min-width: 200px" />
+        </div>
+        <div class="row" style="gap: 8px; flex-wrap: wrap">
+          <label for="bondElementB" class="subtitle" style="min-width: 120px" data-i18n="bond_element_b">元素 B</label>
+          <input id="bondElementB" list="bondElementOptions" type="text" data-i18n-placeholder="bond_input_placeholder" placeholder="输入元素符号或名称，如 Na / Cl / 钠 / 氯" style="flex: 1; min-width: 200px" />
+        </div>
+        <datalist id="bondElementOptions"></datalist>
+        <div class="row" style="margin-top: 8px">
+          <button id="bondCalcBtn" data-i18n="bond_calc">判断</button>
+        </div>
+        <div id="bondResult" class="subtitle" style="margin-top: 10px; line-height: 1.8"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="bondClose" data-i18n="close">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="galvanicModal" class="modal">
+    <div class="modal-card has-back">
+      <button id="galvanicBackBtn" class="modal-back-btn" data-i18n-title="back_to_prev" title="返回上一级">‹</button>
+      <h3 class="modal-title" data-i18n="galvanic_tool">原电池</h3>
+      <div id="galvanicSetupOverlay" class="galvanic-setup-overlay">
+        <div class="galvanic-setup-card">
+          <div class="galvanic-setup-title" data-i18n="galvanic_oobe_title">创建原电池</div>
+          <div id="galvanicSetupStep1" class="galvanic-setup-step active">
+            <div class="subtitle" data-i18n="galvanic_cell_type">电池类型</div>
+            <div class="galvanic-choice-grid" style="margin-top:8px">
+              <button id="galvanicWizardPickSingle" class="galvanic-choice-card" type="button" data-i18n="galvanic_cell_single">单液原电池</button>
+              <button id="galvanicWizardPickDouble" class="galvanic-choice-card active" type="button" data-i18n="galvanic_cell_double">双液原电池</button>
+            </div>
+          </div>
+          <div id="galvanicSetupStep2" class="galvanic-setup-step">
+            <div class="subtitle" data-i18n="galvanic_oobe_electrode">正负极材料</div>
+            <div class="row" style="gap:8px; margin-top:10px">
+              <label for="galvanicWizardMetalA" class="subtitle" style="min-width:84px" data-i18n="galvanic_metal_a">金属A</label>
+              <select id="galvanicWizardMetalA" style="flex:1"></select>
+            </div>
+            <div class="row" style="gap:8px; margin-top:8px">
+              <label for="galvanicWizardMetalB" class="subtitle" style="min-width:84px" data-i18n="galvanic_metal_b">金属B</label>
+              <select id="galvanicWizardMetalB" style="flex:1"></select>
+            </div>
+          </div>
+          <div id="galvanicSetupStep3" class="galvanic-setup-step">
+            <div class="subtitle" data-i18n="galvanic_oobe_electrolyte">电解液</div>
+            <div class="row" style="gap:8px; margin-top:10px">
+              <select id="galvanicWizardElectrolyte" style="flex:1">
+                <option value="h2so4" data-i18n="galvanic_solution_acid">稀硫酸</option>
+                <option value="hcl" data-i18n="galvanic_solution_hcl">稀盐酸</option>
+                <option value="naoh" data-i18n="galvanic_solution_naoh">氢氧化钠溶液</option>
+              </select>
+            </div>
+          </div>
+          <div id="galvanicSetupStep4" class="galvanic-setup-step">
+            <div class="subtitle" data-i18n="galvanic_oobe_bridge">盐桥成分</div>
+            <div class="row" style="gap:8px; margin-top:10px">
+              <select id="galvanicWizardBridge" style="flex:1">
+                <option value="kno3" data-i18n="galvanic_bridge_kno3">KNO₃ 盐桥</option>
+                <option value="kcl" data-i18n="galvanic_bridge_kcl">KCl 盐桥</option>
+                <option value="nh4no3" data-i18n="galvanic_bridge_nh4no3">NH₄NO₃ 盐桥</option>
+              </select>
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px; justify-content:space-between">
+            <button id="galvanicWizardBack" type="button" data-i18n="back_to_prev">返回</button>
+            <button id="galvanicWizardNext" type="button" data-i18n="next_step">下一步</button>
+          </div>
+        </div>
+      </div>
+      <div id="galvanicContentArea" class="modal-text">
+        <div class="galvanic-layout">
+          <div class="galvanic-left">
+            <div class="galvanic-oobe galvanic-oobe-hidden">
+              <div class="galvanic-oobe-title" data-i18n="galvanic_oobe_title">创建原电池</div>
+              <div class="galvanic-oobe-steps">
+                <button id="galvanicStepCellBtn" class="galvanic-step-chip active" type="button" data-step="1" data-i18n="galvanic_cell_type">电池类型</button>
+                <button id="galvanicStepElectrodeBtn" class="galvanic-step-chip" type="button" data-step="2" data-i18n="galvanic_oobe_electrode">正负极</button>
+                <button id="galvanicStepElectrolyteBtn" class="galvanic-step-chip" type="button" data-step="3" data-i18n="galvanic_oobe_electrolyte">电解液</button>
+                <button id="galvanicStepBridgeBtn" class="galvanic-step-chip" type="button" data-step="4" data-i18n="galvanic_oobe_bridge">盐桥</button>
+              </div>
+              <div id="galvanicStep1" class="galvanic-step-panel active">
+                <select id="galvanicCellType" style="display:none">
+                  <option value="double" data-i18n="galvanic_cell_double">双液原电池</option>
+                  <option value="single" data-i18n="galvanic_cell_single">单液原电池</option>
+                </select>
+                <div class="galvanic-choice-grid">
+                  <button id="galvanicPickSingle" class="galvanic-choice-card" type="button" data-i18n="galvanic_cell_single">单液原电池</button>
+                  <button id="galvanicPickDouble" class="galvanic-choice-card" type="button" data-i18n="galvanic_cell_double">双液原电池</button>
+                </div>
+              </div>
+              <div id="galvanicStep2" class="galvanic-step-panel">
+                <div class="row" style="gap: 8px; flex-wrap: wrap">
+                  <label for="galvanicMetalA" class="subtitle" style="min-width: 84px" data-i18n="galvanic_metal_a">金属A</label>
+                  <select id="galvanicMetalA" style="flex: 1"></select>
+                </div>
+                <div class="row" style="gap: 8px; flex-wrap: wrap">
+                  <label for="galvanicMetalB" class="subtitle" style="min-width: 84px" data-i18n="galvanic_metal_b">金属B</label>
+                  <select id="galvanicMetalB" style="flex: 1"></select>
+                </div>
+                <div class="row" style="gap: 8px; flex-wrap: wrap">
+                  <button id="galvanicSwapBtn" data-i18n="galvanic_swap">交换两极</button>
+                </div>
+              </div>
+              <div id="galvanicStep3" class="galvanic-step-panel">
+                <div class="row" style="gap: 8px; flex-wrap: wrap">
+                  <label for="galvanicElectrolyte" class="subtitle" style="min-width: 84px" data-i18n="galvanic_oobe_electrolyte">电解液</label>
+                  <select id="galvanicElectrolyte" style="flex: 1">
+                    <option value="h2so4" data-i18n="galvanic_solution_acid">稀硫酸</option>
+                    <option value="hcl" data-i18n="galvanic_solution_hcl">稀盐酸</option>
+                    <option value="naoh" data-i18n="galvanic_solution_naoh">氢氧化钠溶液</option>
+                  </select>
+                </div>
+              </div>
+              <div id="galvanicStep4" class="galvanic-step-panel">
+                <div class="row" style="gap: 8px; flex-wrap: wrap">
+                  <label for="galvanicSaltBridge" class="subtitle" style="min-width: 84px" data-i18n="galvanic_oobe_bridge">盐桥</label>
+                  <select id="galvanicSaltBridge" style="flex: 1">
+                    <option value="kno3" data-i18n="galvanic_bridge_kno3">KNO₃ 盐桥</option>
+                    <option value="kcl" data-i18n="galvanic_bridge_kcl">KCl 盐桥</option>
+                    <option value="nh4no3" data-i18n="galvanic_bridge_nh4no3">NH₄NO₃ 盐桥</option>
+                  </select>
+                </div>
+                <div id="galvanicBridgeHint" class="subtitle" style="opacity:.8;" data-i18n="galvanic_bridge_skip_single">单液原电池无需盐桥</div>
+              </div>
+              <div class="row" style="gap: 8px; flex-wrap: wrap">
+                <button id="galvanicPrevStepBtn" data-i18n="back_to_prev">返回</button>
+                <button id="galvanicNextStepBtn" data-i18n="next_step">下一步</button>
+                <button id="galvanicConnectBtn" data-i18n="galvanic_connect_wire">连接导线</button>
+              </div>
+            </div>
+            <div id="galvanicInfo" class="subtitle" style="margin-top: 8px; line-height: 1.8"></div>
+            <div class="row galvanic-runtime-actions" style="gap: 8px; flex-wrap: wrap">
+              <button id="galvanicReconfigBtn" data-i18n="galvanic_reconfig">重新配置</button>
+              <button id="galvanicSwapBtnQuick" data-i18n="galvanic_swap">交换两极</button>
+              <button id="galvanicConnectBtnQuick" data-i18n="galvanic_connect_wire">连接导线</button>
+            </div>
+          </div>
+          <div class="galvanic-right">
+            <div class="galvanic-stage mode-double" id="galvanicStage">
+              <div class="galvanic-legend">
+                <span class="galvanic-legend-item"><i class="legend-ion"></i><span data-i18n="galvanic_legend_ion">离子</span></span>
+                <span class="galvanic-legend-item"><i class="legend-electron"></i><span>e⁻</span></span>
+              </div>
+              <div class="galvanic-mode galvanic-mode-double">
+                <div class="galvanic-wire">
+                  <div class="galvanic-wire-dot"></div>
+                  <div class="galvanic-wire-dot"></div>
+                  <div class="galvanic-wire-dot"></div>
+                  <div class="galvanic-wire-dot"></div>
+                  <div class="galvanic-wire-lead left"></div>
+                  <div class="galvanic-wire-lead right"></div>
+                  <div class="galvanic-ammeter">A</div>
+                  <div class="galvanic-meter-readout" data-i18n="galvanic_meter_reading">示数：XXX</div>
+                  <div class="galvanic-electron" style="animation-delay:0s"></div>
+                  <div class="galvanic-electron" style="animation-delay:-0.4s"></div>
+                  <div class="galvanic-electron" style="animation-delay:-0.8s"></div>
+                  <div class="galvanic-electron" style="animation-delay:-1.2s"></div>
+                </div>
+                <div class="galvanic-beaker galvanic-left-cell">
+                  <div id="galvanicDoubleLeftPlate" class="galvanic-plate"><span id="galvanicAnodeLabel">Zn</span></div>
+                  <div id="galvanicDoubleLeftSolution" class="galvanic-solution" data-i18n="galvanic_solution_acid">稀硫酸</div>
+                </div>
+                <div class="galvanic-beaker galvanic-right-cell">
+                  <div id="galvanicDoubleRightPlate" class="galvanic-plate"><span id="galvanicCathodeLabel">Cu</span></div>
+                  <div id="galvanicDoubleRightSolution" class="galvanic-solution" data-i18n="galvanic_solution_acid">稀硫酸</div>
+                </div>
+                <span id="galvanicDoubleLeftPolarity" class="galvanic-polarity galvanic-polarity-left">-</span>
+                <span id="galvanicDoubleRightPolarity" class="galvanic-polarity galvanic-polarity-right">+</span>
+                <div id="galvanicBridgeText" class="galvanic-bridge" data-i18n="galvanic_bridge">盐桥</div>
+                <div class="galvanic-ions">
+                  <span class="galvanic-ion cation" data-ion="+"></span>
+                  <span class="galvanic-ion cation" data-ion="+"></span>
+                  <span class="galvanic-ion anion" data-ion="-"></span>
+                  <span class="galvanic-ion anion" data-ion="-"></span>
+                </div>
+                <div class="galvanic-bridge-transfer galvanic-bridge-transfer-cation">
+                  <span class="galvanic-transfer-ion cation" data-ion="+"></span>
+                  <span class="galvanic-transfer-ion cation" data-ion="+"></span>
+                  <span class="galvanic-transfer-ion cation" data-ion="+"></span>
+                </div>
+                <div class="galvanic-bridge-transfer galvanic-bridge-transfer-anion">
+                  <span class="galvanic-transfer-ion anion" data-ion="-"></span>
+                  <span class="galvanic-transfer-ion anion" data-ion="-"></span>
+                  <span class="galvanic-transfer-ion anion" data-ion="-"></span>
+                </div>
+              </div>
+              <div class="galvanic-mode galvanic-mode-single">
+                <div class="galvanic-wire">
+                  <div class="galvanic-wire-dot"></div>
+                  <div class="galvanic-wire-dot"></div>
+                  <div class="galvanic-wire-dot"></div>
+                  <div class="galvanic-wire-dot"></div>
+                  <div class="galvanic-wire-lead left"></div>
+                  <div class="galvanic-wire-lead right"></div>
+                  <div class="galvanic-ammeter">A</div>
+                  <div class="galvanic-meter-readout" data-i18n="galvanic_meter_reading">示数：XXX</div>
+                  <div class="galvanic-electron" style="animation-delay:0s"></div>
+                  <div class="galvanic-electron" style="animation-delay:-0.4s"></div>
+                  <div class="galvanic-electron" style="animation-delay:-0.8s"></div>
+                  <div class="galvanic-electron" style="animation-delay:-1.2s"></div>
+                </div>
+                <div class="galvanic-single-beaker">
+                  <div id="galvanicSingleLeftPlate" class="galvanic-plate galvanic-plate-left"><span id="galvanicSingleLeftLabel">Zn</span></div>
+                  <div id="galvanicSingleRightPlate" class="galvanic-plate galvanic-plate-right"><span id="galvanicSingleRightLabel">Cu</span></div>
+                  <div id="galvanicSingleSolution" class="galvanic-solution galvanic-single-solution" data-i18n="galvanic_solution_acid">稀硫酸</div>
+                </div>
+                <span id="galvanicSingleLeftPolarity" class="galvanic-polarity galvanic-polarity-left">-</span>
+                <span id="galvanicSingleRightPolarity" class="galvanic-polarity galvanic-polarity-right">+</span>
+                <div class="galvanic-ion-zone galvanic-cation-zone">
+                  <span class="galvanic-ion-label" data-i18n="galvanic_cation_dir">阳离子迁移</span>
+                  <span class="galvanic-cation-dot"></span>
+                  <span class="galvanic-cation-dot"></span>
+                  <span class="galvanic-cation-dot"></span>
+                </div>
+                <div class="galvanic-ion-zone galvanic-anion-zone">
+                  <span class="galvanic-ion-label" data-i18n="galvanic_anion_dir">阴离子迁移</span>
+                  <span class="galvanic-anion-dot"></span>
+                  <span class="galvanic-anion-dot"></span>
+                  <span class="galvanic-anion-dot"></span>
+                </div>
+                <div class="galvanic-cathode-bubbles">
+                  <span class="galvanic-bubble"></span>
+                  <span class="galvanic-bubble"></span>
+                  <span class="galvanic-bubble"></span>
+                  <span class="galvanic-bubble"></span>
+                  <span class="galvanic-bubble"></span>
+                </div>
+              </div>
+              <div class="galvanic-flow-label" id="galvanicFlowLabel"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="galvanicClose" data-i18n="close">关闭</button>
       </div>
     </div>
   </div>
@@ -3577,8 +5004,11 @@
     const sideMassBtn = document.getElementById("sideMassBtn");
     const sideMoleBtn = document.getElementById("sideMoleBtn");
     const sideOrganicBtn = document.getElementById("sideOrganicBtn");
+    const sideGalvanicBtn = document.getElementById("sideGalvanicBtn");
     const sideFlameBtn = document.getElementById("sideFlameBtn");
     const sideSolutionBtn = document.getElementById("sideSolutionBtn");
+    const sideBondBtn = document.getElementById("sideBondBtn");
+    const sideStdElectrodeBtn = document.getElementById("sideStdElectrodeBtn");
     const sideSolubilityBtn = document.getElementById("sideSolubilityBtn");
     const sideAcidBtn = document.getElementById("sideAcidBtn");
     const sideHydrideBtn = document.getElementById("sideHydrideBtn");
@@ -3619,8 +5049,11 @@
     const openMassTool = document.getElementById("openMassTool");
     const openMoleTool = document.getElementById("openMoleTool");
     const openOrganicTool = document.getElementById("openOrganicTool");
+    const openGalvanicTool = document.getElementById("openGalvanicTool");
     const openFlameTool = document.getElementById("openFlameTool");
     const openSolutionTool = document.getElementById("openSolutionTool");
+    const openBondTool = document.getElementById("openBondTool");
+    const openStdElectrodeTool = document.getElementById("openStdElectrodeTool");
     const openSolubilityTool = document.getElementById("openSolubilityTool");
     const openAcidTool = document.getElementById("openAcidTool");
     const openHydrideTool = document.getElementById("openHydrideTool");
@@ -3636,6 +5069,89 @@
     const moleCalcConfirm = document.getElementById("moleCalcConfirm");
     const moleResult = document.getElementById("moleResult");
     const moleBreakdown = document.getElementById("moleBreakdown");
+    const bondModal = document.getElementById("bondModal");
+    const bondBackBtn = document.getElementById("bondBackBtn");
+    const bondClose = document.getElementById("bondClose");
+    const bondElementA = document.getElementById("bondElementA");
+    const bondElementB = document.getElementById("bondElementB");
+    const bondCalcBtn = document.getElementById("bondCalcBtn");
+    const bondResult = document.getElementById("bondResult");
+    const bondElementOptions = document.getElementById("bondElementOptions");
+    const stdElectrodeModal = document.getElementById("stdElectrodeModal");
+    const stdElectrodeBackBtn = document.getElementById("stdElectrodeBackBtn");
+    const stdElectrodeClose = document.getElementById("stdElectrodeClose");
+    const stdElectrodeList = document.getElementById("stdElectrodeList");
+    const galvanicModal = document.getElementById("galvanicModal");
+    const galvanicBackBtn = document.getElementById("galvanicBackBtn");
+    const galvanicClose = document.getElementById("galvanicClose");
+    const galvanicSetupOverlay = document.getElementById("galvanicSetupOverlay");
+    const galvanicContentArea = document.getElementById("galvanicContentArea");
+    const galvanicSetupStep1 = document.getElementById("galvanicSetupStep1");
+    const galvanicSetupStep2 = document.getElementById("galvanicSetupStep2");
+    const galvanicSetupStep3 = document.getElementById("galvanicSetupStep3");
+    const galvanicSetupStep4 = document.getElementById("galvanicSetupStep4");
+    const galvanicWizardBack = document.getElementById("galvanicWizardBack");
+    const galvanicWizardNext = document.getElementById("galvanicWizardNext");
+    const galvanicWizardPickSingle = document.getElementById("galvanicWizardPickSingle");
+    const galvanicWizardPickDouble = document.getElementById("galvanicWizardPickDouble");
+    const galvanicWizardMetalA = document.getElementById("galvanicWizardMetalA");
+    const galvanicWizardMetalB = document.getElementById("galvanicWizardMetalB");
+    const galvanicWizardElectrolyte = document.getElementById("galvanicWizardElectrolyte");
+    const galvanicWizardBridge = document.getElementById("galvanicWizardBridge");
+    const galvanicCellType = document.getElementById("galvanicCellType");
+    const galvanicElectrolyte = document.getElementById("galvanicElectrolyte");
+    const galvanicSaltBridge = document.getElementById("galvanicSaltBridge");
+    const galvanicMetalA = document.getElementById("galvanicMetalA");
+    const galvanicMetalB = document.getElementById("galvanicMetalB");
+    const galvanicStepCellBtn = document.getElementById("galvanicStepCellBtn");
+    const galvanicStepElectrodeBtn = document.getElementById("galvanicStepElectrodeBtn");
+    const galvanicStepElectrolyteBtn = document.getElementById("galvanicStepElectrolyteBtn");
+    const galvanicStepBridgeBtn = document.getElementById("galvanicStepBridgeBtn");
+    const galvanicStep1 = document.getElementById("galvanicStep1");
+    const galvanicStep2 = document.getElementById("galvanicStep2");
+    const galvanicStep3 = document.getElementById("galvanicStep3");
+    const galvanicStep4 = document.getElementById("galvanicStep4");
+    const galvanicPrevStepBtn = document.getElementById("galvanicPrevStepBtn");
+    const galvanicNextStepBtn = document.getElementById("galvanicNextStepBtn");
+    const galvanicPickSingle = document.getElementById("galvanicPickSingle");
+    const galvanicPickDouble = document.getElementById("galvanicPickDouble");
+    const galvanicBridgeHint = document.getElementById("galvanicBridgeHint");
+    const galvanicSwapBtn = document.getElementById("galvanicSwapBtn");
+    const galvanicConnectBtn = document.getElementById("galvanicConnectBtn");
+    const galvanicReconfigBtn = document.getElementById("galvanicReconfigBtn");
+    const galvanicSwapBtnQuick = document.getElementById("galvanicSwapBtnQuick");
+    const galvanicConnectBtnQuick = document.getElementById("galvanicConnectBtnQuick");
+    const galvanicInfo = document.getElementById("galvanicInfo");
+    const galvanicStage = document.getElementById("galvanicStage");
+    const galvanicAnodeLabel = document.getElementById("galvanicAnodeLabel");
+    const galvanicCathodeLabel = document.getElementById("galvanicCathodeLabel");
+    const galvanicDoubleLeftPlate = document.getElementById("galvanicDoubleLeftPlate");
+    const galvanicDoubleRightPlate = document.getElementById("galvanicDoubleRightPlate");
+    const galvanicSingleLeftLabel = document.getElementById("galvanicSingleLeftLabel");
+    const galvanicSingleRightLabel = document.getElementById("galvanicSingleRightLabel");
+    const galvanicSingleLeftPlate = document.getElementById("galvanicSingleLeftPlate");
+    const galvanicSingleRightPlate = document.getElementById("galvanicSingleRightPlate");
+    const galvanicDoubleLeftPolarity = document.getElementById("galvanicDoubleLeftPolarity");
+    const galvanicDoubleRightPolarity = document.getElementById("galvanicDoubleRightPolarity");
+    const galvanicSingleLeftPolarity = document.getElementById("galvanicSingleLeftPolarity");
+    const galvanicSingleRightPolarity = document.getElementById("galvanicSingleRightPolarity");
+    const galvanicFlowLabel = document.getElementById("galvanicFlowLabel");
+    const galvanicDoubleLeftSolution = document.getElementById("galvanicDoubleLeftSolution");
+    const galvanicDoubleRightSolution = document.getElementById("galvanicDoubleRightSolution");
+    const galvanicSingleSolution = document.getElementById("galvanicSingleSolution");
+    const galvanicBridgeText = document.getElementById("galvanicBridgeText");
+    const galvanicBridgeIons = Array.from(document.querySelectorAll(".galvanic-mode-double .galvanic-ion"));
+    const galvanicBridgeTransferCations = Array.from(document.querySelectorAll(".galvanic-bridge-transfer-cation .galvanic-transfer-ion"));
+    const galvanicBridgeTransferAnions = Array.from(document.querySelectorAll(".galvanic-bridge-transfer-anion .galvanic-transfer-ion"));
+    const galvanicMeterReadouts = Array.from(document.querySelectorAll(".galvanic-meter-readout"));
+    const galvanicCationLabel = document.querySelector(".galvanic-cation-zone .galvanic-ion-label");
+    const galvanicAnionLabel = document.querySelector(".galvanic-anion-zone .galvanic-ion-label");
+    const galvanicCationDots = Array.from(document.querySelectorAll(".galvanic-cation-dot"));
+    const galvanicAnionDots = Array.from(document.querySelectorAll(".galvanic-anion-dot"));
+    const galvanicCathodeBubbles = document.querySelector(".galvanic-cathode-bubbles");
+    const galvanicSingleBeaker = galvanicStage.querySelector(".galvanic-mode-single .galvanic-single-beaker");
+    const galvanicDoubleLeftCell = galvanicStage.querySelector(".galvanic-mode-double .galvanic-left-cell");
+    const galvanicDoubleRightCell = galvanicStage.querySelector(".galvanic-mode-double .galvanic-right-cell");
     const organicModal = document.getElementById("organicModal");
     const organicBackBtn = document.getElementById("organicBackBtn");
     const organicClose = document.getElementById("organicClose");
@@ -3714,6 +5230,24 @@
         mass_calc: "相对原子质量计算器",
         mole_calc: "物质的量换算",
         solution_calc: "溶液浓度计算器",
+        bond_checker: "化学键判断器",
+        std_electrode_title: "标准电极电势表（E°）",
+        std_electrode_subtitle: "按金属活动性由大到小（先录入版）",
+        bond_element_a: "元素 A",
+        bond_element_b: "元素 B",
+        bond_input_placeholder: "输入元素符号或名称，如 Na / Cl / 钠 / 氯",
+        bond_calc: "判断",
+        bond_need_input: "请先输入两个元素。",
+        bond_unknown_element: "未识别元素：{value}",
+        bond_no_en: "元素 {symbol} 暂无电负性数据，暂时无法判断。",
+        bond_result_header: "判断结果",
+        bond_delta_x: "电负性差 ΔX",
+        bond_ionic_percent: "离子性百分比",
+        bond_type: "化学键类型",
+        bond_type_ionic: "离子键",
+        bond_type_polar: "极性共价键",
+        bond_type_weak_polar: "极性共价键（弱极性）",
+        bond_type_nonpolar: "非极性共价键",
         more_tools: "更多功能",
         solubility_table: "离子溶解性表",
         hydrolysis_toggle: "水解选项",
@@ -3732,6 +5266,8 @@
         coexist_ok: "可大量共存",
         coexist_no: "不可大量共存",
         coexist_reason: "依据",
+        coexist_colored_solution: "！该溶液为有色溶液",
+        coexist_colored_ions: "有色粒子",
         coexist_rule_precip: "形成沉淀/微溶盐",
         coexist_rule_hydrolysis: "发生水解相关反应",
         coexist_rule_double_hydrolysis: "发生双水解",
@@ -3766,6 +5302,53 @@
         func_dict_subtitle: "按官能团所含元素分类列出常见官能团",
         func_select_hint: "请先在左侧选择一个官能团。",
         organic_title: "有机分子结构",
+        galvanic_tool: "原电池",
+        galvanic_oobe_title: "创建原电池",
+        galvanic_oobe_electrode: "正负极",
+        galvanic_oobe_electrolyte: "电解液",
+        galvanic_oobe_bridge: "盐桥成分",
+        galvanic_oobe_finish: "完成",
+        galvanic_cell_type: "电池类型",
+        galvanic_cell_double: "双液原电池",
+        galvanic_cell_single: "单液原电池",
+        galvanic_metal_a: "金属A",
+        galvanic_metal_b: "金属B",
+        galvanic_reconfig: "重新配置",
+        galvanic_swap: "交换两极",
+        next_step: "下一步",
+        galvanic_connect_wire: "连接导线",
+        galvanic_connected: "已接通",
+        galvanic_depleted: "负极已耗尽",
+        galvanic_disconnect_wire: "断开导线",
+        galvanic_run: "开始动画",
+        galvanic_pause: "暂停动画",
+        galvanic_meter_reading: "示数：{value}",
+        galvanic_legend_ion: "离子",
+        galvanic_solution: "电解质溶液",
+        galvanic_solution_acid: "稀硫酸",
+        galvanic_solution_hcl: "稀盐酸",
+        galvanic_solution_naoh: "氢氧化钠溶液",
+        galvanic_bridge: "盐桥",
+        galvanic_bridge_kno3: "KNO₃ 盐桥",
+        galvanic_bridge_kcl: "KCl 盐桥",
+        galvanic_bridge_nh4no3: "NH₄NO₃ 盐桥",
+        galvanic_bridge_skip_single: "单液原电池无需盐桥",
+        galvanic_title_auto: "自动判定方向",
+        galvanic_anode: "负极（阳极）",
+        galvanic_cathode: "正极（阴极）",
+        galvanic_anode_reaction: "负极反应",
+        galvanic_cathode_reaction: "正极反应",
+        galvanic_electron_flow: "电子流向",
+        galvanic_ion_flow: "离子迁移",
+        galvanic_cation_dir: "阳离子→正极",
+        galvanic_anion_dir: "阴离子→负极",
+        galvanic_ion_rule: "阳离子 → {to}，阴离子 → {from}",
+        galvanic_ion_rule_single: "在同一稀硫酸溶液中定向迁移",
+        galvanic_emf: "电池电动势 E°",
+        galvanic_not_spontaneous: "当前组合在标准电极电势下不形成自发原电池",
+        galvanic_noble_no_reaction: "Ag/Cu 组合均位于氢之后，稀酸条件下不发生自发原电池反应",
+        galvanic_passivation_no_reaction: "含 Al 或 Pb 电极时会形成钝化氧化膜，接通后电池不再发生有效反应",
+        galvanic_flow_text: "e⁻：{from} → {to}",
         flame_test: "焰色试验",
         flame_select_ion: "选择物质",
         flame_cobalt_glass: "放置蓝色钴玻璃",
@@ -3843,14 +5426,10 @@
         theme_autumn: "秋天",
         theme_winter: "寒冬",
         model_mode: "显示模型",
-        model_cloud: "电子云模型",
         model_bohr: "波尔模型",
         bohr_motion: "波尔运动",
         bohr_dynamic: "动态",
         bohr_static: "静态",
-        cloud_mode: "电子云模式",
-        cloud_fill: "填充式",
-        cloud_particle: "粒子式",
         language: "语言",
         na_toggle: "用NA代替粒子数",
         toggle_on: "开",
@@ -3962,6 +5541,24 @@
         mass_calc: "Relative Atomic Mass Calculator",
         mole_calc: "Mole Converter",
         solution_calc: "Solution Concentration",
+        bond_checker: "Bond Type Checker",
+        std_electrode_title: "Standard Electrode Potential Table (E°)",
+        std_electrode_subtitle: "Sorted by metal activity (initial set)",
+        bond_element_a: "Element A",
+        bond_element_b: "Element B",
+        bond_input_placeholder: "Enter symbol/name, e.g. Na / Cl / Sodium / Chlorine",
+        bond_calc: "Judge",
+        bond_need_input: "Please enter two elements.",
+        bond_unknown_element: "Unrecognized element: {value}",
+        bond_no_en: "No electronegativity data for {symbol}, unable to judge.",
+        bond_result_header: "Result",
+        bond_delta_x: "Electronegativity Difference ΔX",
+        bond_ionic_percent: "Ionic Character",
+        bond_type: "Bond Type",
+        bond_type_ionic: "Ionic Bond",
+        bond_type_polar: "Polar Covalent Bond",
+        bond_type_weak_polar: "Polar Covalent Bond (Weakly Polar)",
+        bond_type_nonpolar: "Nonpolar Covalent Bond",
         more_tools: "More Tools",
         solubility_table: "Ion Solubility Table",
         hydrolysis_toggle: "Hydrolysis",
@@ -3980,6 +5577,8 @@
         coexist_ok: "Can coexist in large amount",
         coexist_no: "Cannot coexist in large amount",
         coexist_reason: "Reason",
+        coexist_colored_solution: "! This solution is colored",
+        coexist_colored_ions: "Colored ions",
         coexist_rule_precip: "Precipitate/slightly soluble salt forms",
         coexist_rule_hydrolysis: "Hydrolysis-related reaction occurs",
         coexist_rule_double_hydrolysis: "Double hydrolysis occurs",
@@ -4014,6 +5613,53 @@
         func_dict_subtitle: "Common functional groups grouped by included elements",
         func_select_hint: "Please select a functional group from the left.",
         organic_title: "Organic Molecular Structures",
+        galvanic_tool: "Galvanic Cell Demo",
+        galvanic_oobe_title: "Create Galvanic Cell",
+        galvanic_oobe_electrode: "Electrodes",
+        galvanic_oobe_electrolyte: "Electrolyte",
+        galvanic_oobe_bridge: "Salt Bridge",
+        galvanic_oobe_finish: "Finish",
+        galvanic_cell_type: "Cell Type",
+        galvanic_cell_double: "Dual-Solution Cell",
+        galvanic_cell_single: "Single-Solution Cell",
+        galvanic_metal_a: "Metal A",
+        galvanic_metal_b: "Metal B",
+        galvanic_reconfig: "Reconfigure",
+        galvanic_swap: "Swap Electrodes",
+        next_step: "Next",
+        galvanic_connect_wire: "Connect Wire",
+        galvanic_connected: "Connected",
+        galvanic_depleted: "Anode Depleted",
+        galvanic_disconnect_wire: "Disconnect Wire",
+        galvanic_run: "Start Animation",
+        galvanic_pause: "Pause Animation",
+        galvanic_meter_reading: "Reading: {value}",
+        galvanic_legend_ion: "Ion",
+        galvanic_solution: "Electrolyte",
+        galvanic_solution_acid: "Dilute Sulfuric Acid",
+        galvanic_solution_hcl: "Dilute Hydrochloric Acid",
+        galvanic_solution_naoh: "Sodium Hydroxide Solution",
+        galvanic_bridge: "Salt Bridge",
+        galvanic_bridge_kno3: "KNO₃ Bridge",
+        galvanic_bridge_kcl: "KCl Bridge",
+        galvanic_bridge_nh4no3: "NH₄NO₃ Bridge",
+        galvanic_bridge_skip_single: "Single-solution cells do not require a salt bridge",
+        galvanic_title_auto: "Auto Direction",
+        galvanic_anode: "Anode (-)",
+        galvanic_cathode: "Cathode (+)",
+        galvanic_anode_reaction: "Anode Reaction",
+        galvanic_cathode_reaction: "Cathode Reaction",
+        galvanic_electron_flow: "Electron Flow",
+        galvanic_ion_flow: "Ion Migration",
+        galvanic_cation_dir: "Cations → Cathode",
+        galvanic_anion_dir: "Anions → Anode",
+        galvanic_ion_rule: "cations → {to}, anions → {from}",
+        galvanic_ion_rule_single: "directed migration in one dilute sulfuric acid solution",
+        galvanic_emf: "Cell EMF E°",
+        galvanic_not_spontaneous: "Current pair is not spontaneous under standard potentials",
+        galvanic_noble_no_reaction: "Ag/Cu are both below H in activity; no spontaneous cell reaction in dilute acid",
+        galvanic_passivation_no_reaction: "With Al or Pb electrodes, passivation film blocks the effective cell reaction after connection",
+        galvanic_flow_text: "e⁻: {from} → {to}",
         flame_test: "Flame Test",
         flame_select_ion: "Select Substance",
         flame_cobalt_glass: "Use cobalt blue glass",
@@ -4091,14 +5737,10 @@
         theme_autumn: "Autumn",
         theme_winter: "Winter",
         model_mode: "Model",
-        model_cloud: "Electron Cloud",
         model_bohr: "Bohr",
         bohr_motion: "Bohr Motion",
         bohr_dynamic: "Dynamic",
         bohr_static: "Static",
-        cloud_mode: "Cloud Mode",
-        cloud_fill: "Fill",
-        cloud_particle: "Particle",
         language: "Language",
         na_toggle: "Use NA for N",
         toggle_on: "On",
@@ -4282,14 +5924,10 @@
         theme_autumn: "Otoño",
         theme_winter: "Invierno",
         model_mode: "Modelo",
-        model_cloud: "Nube Electrónica",
         model_bohr: "Bohr",
         bohr_motion: "Movimiento de Bohr",
         bohr_dynamic: "Dinámico",
         bohr_static: "Estático",
-        cloud_mode: "Modo de Nube",
-        cloud_fill: "Relleno",
-        cloud_particle: "Partículas",
         language: "Idioma",
         na_toggle: "Usar NA para N",
         toggle_on: "Activado",
@@ -4473,14 +6111,10 @@
         theme_autumn: "秋",
         theme_winter: "冬",
         model_mode: "モデル",
-        model_cloud: "電子雲モデル",
         model_bohr: "ボーア模型",
         bohr_motion: "ボーア運動",
         bohr_dynamic: "動的",
         bohr_static: "静的",
-        cloud_mode: "電子雲モード",
-        cloud_fill: "塗りつぶし",
-        cloud_particle: "粒子",
         language: "言語",
         na_toggle: "粒子数で NA を使用",
         toggle_on: "オン",
@@ -4664,14 +6298,10 @@
         theme_autumn: "가을",
         theme_winter: "겨울",
         model_mode: "모델",
-        model_cloud: "전자구름 모델",
         model_bohr: "보어 모델",
         bohr_motion: "보어 운동",
         bohr_dynamic: "동적",
         bohr_static: "정적",
-        cloud_mode: "전자구름 모드",
-        cloud_fill: "채움",
-        cloud_particle: "입자",
         language: "언어",
         na_toggle: "입자수에 NA 사용",
         toggle_on: "켜기",
@@ -4855,14 +6485,10 @@
         theme_autumn: "Herbst",
         theme_winter: "Winter",
         model_mode: "Modell",
-        model_cloud: "Elektronenwolke",
         model_bohr: "Bohr",
         bohr_motion: "Bohr-Bewegung",
         bohr_dynamic: "Dynamisch",
         bohr_static: "Statisch",
-        cloud_mode: "Wolkenmodus",
-        cloud_fill: "Gefüllt",
-        cloud_particle: "Partikel",
         language: "Sprache",
         na_toggle: "NA für N verwenden",
         toggle_on: "Ein",
@@ -5068,8 +6694,10 @@
       sideMassBtn.textContent = "M";
       sideMoleBtn.textContent = "n=m/M";
       sideOrganicBtn.textContent = "C";
+      sideGalvanicBtn.textContent = currentLang === "zh" ? "电池" : "Cell";
       sideFlameBtn.textContent = currentLang === "zh" ? "焰" : "Fl";
       sideSolutionBtn.textContent = "c%";
+      sideBondBtn.textContent = "Δχ";
       sideAcidBtn.textContent = currentLang === "zh" ? "高氧" : "Oxo";
       sideHydrideBtn.textContent = "H";
       sideHydroxideBtn.textContent = "OH";
@@ -5120,6 +6748,11 @@
       document.title = t("app_title");
       updateMoleModeLabel();
       renderSolutionInputs();
+      renderBondElementOptions();
+      renderStandardElectrodeTable();
+      buildGalvanicMetalOptions();
+      setGalvanicAnimationState();
+      renderGalvanicCell();
       updateOrganicInfo();
       renderOrganicMoleculeList();
       updateFlameLabel();
@@ -5794,7 +7427,6 @@
 
     let modelMode = "bohr";
     let bohrMotion = "dynamic";
-    let cloudMode = "fill";
 
     function normalizeDir(v) {
       const n = Math.hypot(v.x, v.y, v.z) || 1;
@@ -5802,7 +7434,6 @@
     }
 
     function getCloudStagePalette() {
-      // Keep electron-cloud stage close to the teaching-video style (dark stage + red/blue phase colors)
       return {
         bgA: "rgba(22, 22, 22, 0.995)",
         bgB: "rgba(34, 34, 34, 0.995)",
@@ -6123,6 +7754,11 @@
       return configuration.map(([label, count]) => `${label}${count}`).join(" ");
     }
 
+    function formatConfigurationSupHtml(text) {
+      if (!text) return "";
+      return String(text).replace(/([spdf])(\d+)/g, "$1<sup>$2</sup>");
+    }
+
     function subshellOrbitals(type) {
       if (type === "s") return 1;
       if (type === "p") return 3;
@@ -6304,6 +7940,602 @@
       } catch (err) {
         formulaResult.innerHTML = `<span style="color:#ff7a7a">${t("parse_error")}：${err.message}</span>`;
       }
+    }
+
+    function renderBondElementOptions() {
+      if (!bondElementOptions) return;
+      const isZh = currentLang === "zh";
+      bondElementOptions.innerHTML = symbolList.map((sym, idx) => {
+        const el = elements[idx] || {};
+        const label = isZh
+          ? `${sym} · ${(el.cn || el.en || sym)}`
+          : `${sym} · ${(el.en || sym)}`;
+        return `<option value="${sym}" label="${label}"></option>`;
+      }).join("");
+    }
+
+    function parseElementInput(text) {
+      const raw = String(text || "").trim();
+      if (!raw) return null;
+      const compact = raw.replace(/\s+/g, "");
+      if (/^\d+$/.test(compact)) {
+        const z = Number(compact);
+        if (z >= 1 && z <= 118) return z;
+      }
+      const symbolGuess = compact[0].toUpperCase() + compact.slice(1).toLowerCase();
+      if (symbolToZ.has(symbolGuess)) return symbolToZ.get(symbolGuess);
+      const lower = compact.toLowerCase();
+      for (let i = 0; i < elements.length; i++) {
+        const item = elements[i];
+        if (!item) continue;
+        if (item.cn === compact) return i + 1;
+        if (String(item.en || "").toLowerCase() === lower) return i + 1;
+      }
+      return null;
+    }
+
+    function classifyBondType(deltaX) {
+      if (deltaX >= 1.7) return "bond_type_ionic";
+      if (Math.abs(deltaX - 0.4) < 1e-9) return "bond_type_weak_polar";
+      if (deltaX < 0.4) return "bond_type_nonpolar";
+      return "bond_type_polar";
+    }
+
+    function runBondCheck() {
+      const rawA = String(bondElementA.value || "").trim();
+      const rawB = String(bondElementB.value || "").trim();
+      bondResult.innerHTML = "";
+      if (!rawA || !rawB) {
+        bondResult.innerHTML = `<span style="color:#ff7a7a">${t("bond_need_input")}</span>`;
+        return;
+      }
+      const zA = parseElementInput(rawA);
+      const zB = parseElementInput(rawB);
+      if (!zA) {
+        bondResult.innerHTML = `<span style="color:#ff7a7a">${t("bond_unknown_element", { value: rawA })}</span>`;
+        return;
+      }
+      if (!zB) {
+        bondResult.innerHTML = `<span style="color:#ff7a7a">${t("bond_unknown_element", { value: rawB })}</span>`;
+        return;
+      }
+      const enA = electronegativity[zA];
+      const enB = electronegativity[zB];
+      const symbolA = symbolList[zA - 1];
+      const symbolB = symbolList[zB - 1];
+      if (!Number.isFinite(enA)) {
+        bondResult.innerHTML = `<span style="color:#ff7a7a">${t("bond_no_en", { symbol: symbolA })}</span>`;
+        return;
+      }
+      if (!Number.isFinite(enB)) {
+        bondResult.innerHTML = `<span style="color:#ff7a7a">${t("bond_no_en", { symbol: symbolB })}</span>`;
+        return;
+      }
+      const elementA = elements[zA - 1] || {};
+      const elementB = elements[zB - 1] || {};
+      const displayA = currentLang !== "zh" ? (elementA.en || symbolA) : ((zA >= 112 ? elementA.en : elementA.cn) || elementA.en || symbolA);
+      const displayB = currentLang !== "zh" ? (elementB.en || symbolB) : ((zB >= 112 ? elementB.en : elementB.cn) || elementB.en || symbolB);
+      const deltaX = Math.abs(enA - enB);
+      const ionicityPercent = (1 - Math.exp(-0.25 * deltaX * deltaX)) * 100;
+      const typeKey = classifyBondType(deltaX);
+
+      bondElementA.value = symbolA;
+      bondElementB.value = symbolB;
+      bondResult.innerHTML =
+        `<strong>${t("bond_result_header")}</strong><br>` +
+        `${displayA} (${symbolA}) χ = ${enA.toFixed(2)}<br>` +
+        `${displayB} (${symbolB}) χ = ${enB.toFixed(2)}<br>` +
+        `${t("bond_delta_x")}：<strong>${deltaX.toFixed(2)}</strong><br>` +
+        `${t("bond_ionic_percent")}：<strong>${ionicityPercent.toFixed(1)}%</strong><br>` +
+        `${t("bond_type")}：<strong>${t(typeKey)}</strong>`;
+    }
+
+    const galvanicPotentials = {
+      Mg: -2.37,
+      Al: -1.66,
+      Zn: -0.76,
+      Fe: -0.44,
+      Ni: -0.25,
+      Sn: -0.14,
+      Pb: -0.13,
+      H: 0.0,
+      C: 0.0,
+      Cu: 0.34,
+      Ag: 0.80,
+    };
+    const galvanicOrder = ["Mg", "Al", "Zn", "Fe", "Ni", "Sn", "Pb", "H", "C", "Cu", "Ag"];
+    const galvanicOxidationCharge = {
+      Mg: 2, Al: 3, Zn: 2, Fe: 2, Ni: 2, Sn: 2, Pb: 2, H: 1, C: 0, Cu: 2, Ag: 1
+    };
+    const galvanicElectrolyteLabelMap = {
+      h2so4: "galvanic_solution_acid",
+      hcl: "galvanic_solution_hcl",
+      naoh: "galvanic_solution_naoh"
+    };
+    const galvanicBridgeLabelMap = {
+      kno3: "galvanic_bridge_kno3",
+      kcl: "galvanic_bridge_kcl",
+      nh4no3: "galvanic_bridge_nh4no3"
+    };
+    const galvanicBridgeIonsMap = {
+      kno3: { cation: "K⁺", anion: "NO₃⁻" },
+      kcl: { cation: "K⁺", anion: "Cl⁻" },
+      nh4no3: { cation: "NH₄⁺", anion: "NO₃⁻" }
+    };
+    const galvanicElectrolyteIons = {
+      h2so4: {
+        zh: { cationName: "氢离子", anionName: "硫酸根离子", cationShort: "H⁺", anionShort: "SO₄²⁻" },
+        en: { cationName: "Hydrogen ion", anionName: "Sulfate ion", cationShort: "H⁺", anionShort: "SO₄²⁻" }
+      },
+      hcl: {
+        zh: { cationName: "氢离子", anionName: "氯离子", cationShort: "H⁺", anionShort: "Cl⁻" },
+        en: { cationName: "Hydrogen ion", anionName: "Chloride ion", cationShort: "H⁺", anionShort: "Cl⁻" }
+      },
+      naoh: {
+        zh: { cationName: "钠离子", anionName: "氢氧根离子", cationShort: "Na⁺", anionShort: "OH⁻" },
+        en: { cationName: "Sodium ion", anionName: "Hydroxide ion", cationShort: "Na⁺", anionShort: "OH⁻" }
+      }
+    };
+    const standardElectrodeRows = [
+      { sym: "K", zh: "钾", en: "Potassium", e0: -2.93 },
+      { sym: "Ca", zh: "钙", en: "Calcium", e0: -2.87 },
+      { sym: "Na", zh: "钠", en: "Sodium", e0: -2.71 },
+      { sym: "Mg", zh: "镁", en: "Magnesium", e0: -2.37 },
+      { sym: "Al", zh: "铝", en: "Aluminium", e0: -1.66 },
+      { sym: "Zn", zh: "锌", en: "Zinc", e0: -0.76 },
+      { sym: "Fe", zh: "铁", en: "Iron", e0: -0.44 },
+      { sym: "Sn", zh: "锡", en: "Tin", e0: -0.14 },
+      { sym: "Pb", zh: "铅", en: "Lead", e0: -0.13 },
+      { sym: "H", zh: "氢", en: "Hydrogen", e0: 0.0 },
+      { sym: "Cu", zh: "铜", en: "Copper", e0: 0.34 },
+      { sym: "Hg", zh: "汞", en: "Mercury", e0: 0.85 },
+      { sym: "Ag", zh: "银", en: "Silver", e0: 0.80 },
+      { sym: "Pt", zh: "铂", en: "Platinum", e0: 1.20 },
+      { sym: "Au", zh: "金", en: "Gold", e0: 1.50 },
+      { sym: "Co", zh: "钴", en: "Cobalt", e0: -0.28 },
+      { sym: "Ni", zh: "镍", en: "Nickel", e0: -0.25 },
+      { sym: "Cr", zh: "铬", en: "Chromium", e0: -0.74 }
+    ];
+    let galvanicConnected = false;
+    let galvanicSetupStep = 1;
+    let galvanicDepleted = false;
+    let galvanicCorrosion = 0;
+    let galvanicCorrosionTimer = null;
+    let galvanicBlockedReason = "";
+
+    function getElementDisplayName(sym) {
+      const z = symbolToZ.get(sym);
+      const element = z ? (elements[z - 1] || {}) : {};
+      return currentLang === "zh"
+        ? (element.cn || element.en || sym)
+        : (element.en || sym);
+    }
+
+    function getGalvanicElectrodeName(sym) {
+      if (sym === "C") return currentLang === "zh" ? "石墨" : "Graphite";
+      return getElementDisplayName(sym);
+    }
+
+    function buildGalvanicMetalOptions() {
+      const prevA = galvanicMetalA.value;
+      const prevB = galvanicMetalB.value;
+      const options = galvanicOrder.map((sym) => {
+        const name = getGalvanicElectrodeName(sym);
+        const text = currentLang === "zh" ? `${sym}（${name}）` : `${sym} (${name})`;
+        return `<option value="${sym}">${text}</option>`;
+      }).join("");
+      galvanicMetalA.innerHTML = options;
+      galvanicMetalB.innerHTML = options;
+      if (galvanicPotentials[prevA]) galvanicMetalA.value = prevA;
+      if (galvanicPotentials[prevB]) galvanicMetalB.value = prevB;
+      if (!galvanicMetalA.value || !galvanicPotentials[galvanicMetalA.value]) galvanicMetalA.value = "Zn";
+      if (!galvanicMetalB.value || !galvanicPotentials[galvanicMetalB.value]) galvanicMetalB.value = "Cu";
+      if (galvanicMetalA.value === galvanicMetalB.value) galvanicMetalB.value = "Ag";
+      galvanicWizardMetalA.innerHTML = options;
+      galvanicWizardMetalB.innerHTML = options;
+      galvanicWizardMetalA.value = galvanicMetalA.value;
+      galvanicWizardMetalB.value = galvanicMetalB.value;
+    }
+
+    function applyGalvanicConfigTexts() {
+      const electrolyteKey = galvanicElectrolyteLabelMap[galvanicElectrolyte.value] || "galvanic_solution_acid";
+      const bridgeKey = galvanicBridgeLabelMap[galvanicSaltBridge.value] || "galvanic_bridge";
+      const electrolyteText = t(electrolyteKey);
+      galvanicDoubleLeftSolution.textContent = electrolyteText;
+      galvanicDoubleRightSolution.textContent = electrolyteText;
+      galvanicSingleSolution.textContent = electrolyteText;
+      galvanicBridgeText.textContent = t(bridgeKey);
+      const bridgeIon = galvanicBridgeIonsMap[galvanicSaltBridge.value] || galvanicBridgeIonsMap.kno3;
+      galvanicBridgeIons.forEach((dot) => {
+        dot.dataset.ion = dot.classList.contains("cation") ? bridgeIon.cation : bridgeIon.anion;
+      });
+      galvanicBridgeTransferCations.forEach((dot) => { dot.dataset.ion = bridgeIon.cation; });
+      galvanicBridgeTransferAnions.forEach((dot) => { dot.dataset.ion = bridgeIon.anion; });
+      const isSingle = galvanicCellType.value === "single";
+      galvanicBridgeHint.style.display = isSingle ? "block" : "none";
+      const ionPack = galvanicElectrolyteIons[galvanicElectrolyte.value] || galvanicElectrolyteIons.h2so4;
+      const ionText = (ionPack[currentLang] || ionPack.zh);
+      if (galvanicCationLabel) galvanicCationLabel.textContent = `${ionText.cationShort} → ${currentLang === "zh" ? "正极" : "Cathode"}`;
+      if (galvanicAnionLabel) galvanicAnionLabel.textContent = `${ionText.anionShort} → ${currentLang === "zh" ? "负极" : "Anode"}`;
+      galvanicCationDots.forEach((dot) => { dot.dataset.ion = ionText.cationShort; });
+      galvanicAnionDots.forEach((dot) => { dot.dataset.ion = ionText.anionShort; });
+    }
+
+    function renderStandardElectrodeTable() {
+      if (!stdElectrodeList) return;
+      stdElectrodeList.innerHTML = standardElectrodeRows.map((row, idx) => {
+        const name = currentLang === "zh" ? row.zh : row.en;
+        const e0 = `${row.e0 >= 0 ? "+" : ""}${row.e0.toFixed(2)} V`;
+        return `<div class="std-electrode-row">
+          <div class="rank">#${idx + 1}</div>
+          <div class="sym">${row.sym}</div>
+          <div>${name}</div>
+          <div class="e0">${e0}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function getGalvanicWizardCellType() {
+      return galvanicWizardPickSingle.classList.contains("active") ? "single" : "double";
+    }
+
+    function setGalvanicWizardCellType(type) {
+      const nextType = type === "single" ? "single" : "double";
+      galvanicWizardPickSingle.classList.toggle("active", nextType === "single");
+      galvanicWizardPickDouble.classList.toggle("active", nextType === "double");
+      galvanicSetupStep4.style.display = nextType === "single" ? "none" : "";
+      const maxStep = nextType === "single" ? 3 : 4;
+      if (galvanicSetupStep > maxStep) galvanicSetupStep = maxStep;
+    }
+
+    function setGalvanicStep(step) {
+      const cellType = getGalvanicWizardCellType();
+      const maxStep = cellType === "single" ? 3 : 4;
+      galvanicSetupStep = Math.max(1, Math.min(step, maxStep));
+      const panels = [galvanicSetupStep1, galvanicSetupStep2, galvanicSetupStep3, galvanicSetupStep4];
+      panels.forEach((panel, idx) => panel.classList.toggle("active", idx + 1 === galvanicSetupStep));
+      galvanicWizardBack.disabled = galvanicSetupStep <= 1;
+      galvanicWizardNext.textContent = galvanicSetupStep >= maxStep ? t("galvanic_oobe_finish") : t("next_step");
+    }
+
+    function startGalvanicWizard() {
+      galvanicSetupOverlay.classList.add("show");
+      galvanicContentArea.style.visibility = "hidden";
+      galvanicContentArea.style.pointerEvents = "none";
+      setGalvanicWizardCellType(galvanicCellType.value === "single" ? "single" : "double");
+      galvanicWizardElectrolyte.value = galvanicElectrolyte.value || "h2so4";
+      galvanicWizardBridge.value = galvanicSaltBridge.value || "kno3";
+      galvanicWizardMetalA.value = galvanicMetalA.value || "Zn";
+      galvanicWizardMetalB.value = galvanicMetalB.value || "Cu";
+      setGalvanicStep(1);
+    }
+
+    function completeGalvanicWizard() {
+      galvanicCellType.value = getGalvanicWizardCellType();
+      galvanicMetalA.value = galvanicWizardMetalA.value || "Zn";
+      galvanicMetalB.value = galvanicWizardMetalB.value || "Cu";
+      if (galvanicMetalA.value === galvanicMetalB.value) galvanicMetalB.value = galvanicMetalA.value === "Ag" ? "Cu" : "Ag";
+      galvanicElectrolyte.value = galvanicWizardElectrolyte.value || "h2so4";
+      galvanicSaltBridge.value = galvanicWizardBridge.value || "kno3";
+      galvanicSetupOverlay.classList.remove("show");
+      galvanicContentArea.style.visibility = "";
+      galvanicContentArea.style.pointerEvents = "";
+      stopGalvanicCorrosion();
+      galvanicDepleted = false;
+      galvanicCorrosion = 0;
+      galvanicConnected = false;
+      applyGalvanicConfigTexts();
+      renderGalvanicCell();
+      setGalvanicAnimationState();
+    }
+
+    function stopGalvanicCorrosion() {
+      if (galvanicCorrosionTimer) {
+        clearInterval(galvanicCorrosionTimer);
+        galvanicCorrosionTimer = null;
+      }
+    }
+
+    function getGalvanicBlockedReason(left, right) {
+      const pair = new Set([left, right]);
+      if (pair.has("Al") || pair.has("Pb")) return "passivation";
+      if (pair.has("Ag") && pair.has("Cu")) return "noble";
+      return "";
+    }
+
+    function updateGalvanicPassivationVisual() {
+      const showFilm = galvanicConnected && galvanicBlockedReason === "passivation";
+      const isPassivatedMetal = (plate) => {
+        const sym = plate?.dataset?.metal || "";
+        return sym === "Al" || sym === "Pb";
+      };
+      [
+        galvanicDoubleLeftPlate,
+        galvanicDoubleRightPlate,
+        galvanicSingleLeftPlate,
+        galvanicSingleRightPlate
+      ].forEach((plateEl) => {
+        plateEl.classList.toggle("passivated", showFilm && isPassivatedMetal(plateEl));
+      });
+    }
+
+    function updateGalvanicAnodeCorrosionVisual() {
+      const loss = Math.max(0, Math.min(1, galvanicCorrosion));
+      [
+        galvanicDoubleLeftPlate,
+        galvanicDoubleRightPlate,
+        galvanicSingleLeftPlate,
+        galvanicSingleRightPlate
+      ].forEach((plateEl) => {
+        if (plateEl.classList.contains("anode")) {
+          plateEl.style.setProperty("--anode-loss", String(loss));
+        } else {
+          plateEl.style.setProperty("--anode-loss", "0");
+        }
+      });
+    }
+
+    function startGalvanicCorrosion() {
+      if (galvanicCorrosionTimer || galvanicDepleted || !galvanicConnected) return;
+      galvanicCorrosionTimer = setInterval(() => {
+        // Slightly slower corrosion pace to better match classroom demonstrations.
+        galvanicCorrosion = Math.min(1, galvanicCorrosion + 0.0075);
+        updateGalvanicAnodeCorrosionVisual();
+        if (galvanicCorrosion >= 1 || hasGalvanicAnodeLeftLiquid()) {
+          stopGalvanicCorrosion();
+          galvanicDepleted = true;
+          galvanicConnected = false;
+          setGalvanicAnimationState();
+          renderGalvanicCell();
+        }
+      }, 300);
+    }
+
+    function hasGalvanicAnodeLeftLiquid() {
+      const isSingle = galvanicCellType && galvanicCellType.value === "single";
+      const anodePlate = isSingle
+        ? (galvanicSingleLeftPlate.classList.contains("anode") ? galvanicSingleLeftPlate : galvanicSingleRightPlate)
+        : (galvanicDoubleLeftPlate.classList.contains("anode") ? galvanicDoubleLeftPlate : galvanicDoubleRightPlate);
+      const containerEl = isSingle
+        ? galvanicSingleBeaker
+        : (anodePlate === galvanicDoubleLeftPlate ? galvanicDoubleLeftCell : galvanicDoubleRightCell);
+      if (!anodePlate || !containerEl) return false;
+      const plateRect = anodePlate.getBoundingClientRect();
+      const containerRect = containerEl.getBoundingClientRect();
+      if (!plateRect.height || !containerRect.height) return false;
+      const loss = Math.max(0, Math.min(1, galvanicCorrosion));
+      const visibleRatio = Math.max(0, 1 - loss * 0.92);
+      const visibleBottomY = plateRect.top + plateRect.height * visibleRatio;
+      const liquidSurfaceY = containerRect.top + 3;
+      return visibleBottomY <= liquidSurfaceY;
+    }
+
+    function setGalvanicAnimationState() {
+      const isInactive = galvanicStage.classList.contains("inactive");
+      const isBlocked = Boolean(galvanicBlockedReason);
+      const shouldAnimate = galvanicConnected && !isInactive && !isBlocked && !galvanicDepleted;
+      galvanicStage.classList.toggle("paused", !shouldAnimate);
+      galvanicStage.classList.toggle("disconnected", !galvanicConnected);
+      galvanicStage.classList.toggle("connected", galvanicConnected);
+      galvanicStage.classList.toggle("blocked", isBlocked);
+      updateGalvanicPassivationVisual();
+      if (shouldAnimate) startGalvanicCorrosion();
+      else stopGalvanicCorrosion();
+      galvanicConnectBtn.disabled = isInactive || galvanicDepleted || galvanicConnected;
+      galvanicConnectBtn.textContent = galvanicDepleted
+        ? t("galvanic_depleted")
+        : (galvanicConnected ? t("galvanic_connected") : t("galvanic_connect_wire"));
+      if (galvanicConnectBtnQuick) {
+        galvanicConnectBtnQuick.disabled = galvanicConnectBtn.disabled;
+        galvanicConnectBtnQuick.textContent = galvanicConnectBtn.textContent;
+      }
+    }
+
+    function swapGalvanicMetals() {
+      const tmp = galvanicMetalA.value;
+      galvanicMetalA.value = galvanicMetalB.value;
+      galvanicMetalB.value = tmp;
+      galvanicDepleted = false;
+      galvanicCorrosion = 0;
+      galvanicConnected = false;
+      stopGalvanicCorrosion();
+      renderGalvanicCell();
+      updateGalvanicAnodeCorrosionVisual();
+      setGalvanicAnimationState();
+    }
+
+    function toggleGalvanicConnection() {
+      if (galvanicDepleted || galvanicConnected) return;
+      galvanicConnected = true;
+      setGalvanicAnimationState();
+    }
+
+    function updateGalvanicMeter(emf) {
+      const reading = Number.isFinite(emf) ? `${(emf * 1000).toFixed(0)} mA` : "--";
+      galvanicMeterReadouts.forEach((el) => {
+        el.textContent = t("galvanic_meter_reading", { value: reading });
+      });
+    }
+
+    function buildAnodeReaction(sym) {
+      if (sym === "C") return currentLang === "zh" ? "C（石墨）为惰性电极，不参与氧化" : "C (graphite) is inert and not oxidized";
+      const charge = galvanicOxidationCharge[sym] || 2;
+      return `${sym} → ${sym}<sup>${charge}+</sup> + ${charge}e<sup>-</sup>`;
+    }
+
+    function buildCathodeReaction(sym) {
+      if (sym === "H") return "2H<sup>+</sup> + 2e<sup>-</sup> → H<sub>2</sub>↑";
+      return `2H<sup>+</sup> + 2e<sup>-</sup> → H<sub>2</sub>↑（${sym === "C" ? (currentLang === "zh" ? "石墨" : "Graphite") : sym}）`;
+    }
+
+    function updateGalvanicWireGeometry() {
+      const stageRect = galvanicStage.getBoundingClientRect();
+      if (!stageRect.width || !stageRect.height) return;
+      const wirePairs = [
+        {
+          wire: galvanicStage.querySelector(".galvanic-mode-double .galvanic-wire"),
+          leftPlate: galvanicDoubleLeftPlate,
+          rightPlate: galvanicDoubleRightPlate
+        },
+        {
+          wire: galvanicStage.querySelector(".galvanic-mode-single .galvanic-wire"),
+          leftPlate: galvanicSingleLeftPlate,
+          rightPlate: galvanicSingleRightPlate
+        }
+      ];
+      wirePairs.forEach(({ wire, leftPlate, rightPlate }) => {
+        if (!wire || !leftPlate || !rightPlate) return;
+        const leftRect = leftPlate.getBoundingClientRect();
+        const rightRect = rightPlate.getBoundingClientRect();
+        const leftX = leftRect.left + leftRect.width / 2 - stageRect.left;
+        const rightX = rightRect.left + rightRect.width / 2 - stageRect.left;
+        const topY = Math.min(leftRect.top, rightRect.top) - stageRect.top - 26;
+        const leftLead = Math.max(10, leftRect.top - stageRect.top - topY + 1);
+        const rightLead = Math.max(10, rightRect.top - stageRect.top - topY + 1);
+        wire.style.left = `${Math.max(0, leftX)}px`;
+        wire.style.right = `${Math.max(0, stageRect.width - rightX)}px`;
+        wire.style.top = `${Math.max(24, topY)}px`;
+        wire.style.setProperty("--lead-left", `${leftLead}px`);
+        wire.style.setProperty("--lead-right", `${rightLead}px`);
+      });
+    }
+
+    function updateGalvanicBubbleGeometry() {
+      if (!galvanicCathodeBubbles) return;
+      const stageRect = galvanicStage.getBoundingClientRect();
+      const cathodePlate = galvanicSingleLeftPlate.classList.contains("cathode")
+        ? galvanicSingleLeftPlate
+        : galvanicSingleRightPlate;
+      const plateRect = cathodePlate.getBoundingClientRect();
+      const xCenter = plateRect.left + plateRect.width / 2 - stageRect.left;
+      const yBottom = plateRect.bottom - stageRect.top;
+      galvanicCathodeBubbles.style.left = `${Math.max(0, xCenter - 42)}px`;
+      galvanicCathodeBubbles.style.right = "auto";
+      galvanicCathodeBubbles.style.bottom = `${Math.max(12, stageRect.height - yBottom)}px`;
+    }
+
+    function renderGalvanicCell() {
+      const cellType = galvanicCellType && galvanicCellType.value === "single" ? "single" : "double";
+      galvanicStage.classList.toggle("mode-single", cellType === "single");
+      galvanicStage.classList.toggle("mode-double", cellType !== "single");
+      applyGalvanicConfigTexts();
+      const left = galvanicMetalA.value;
+      const right = galvanicMetalB.value;
+      const eLeft = galvanicPotentials[left];
+      const eRight = galvanicPotentials[right];
+      galvanicBlockedReason = getGalvanicBlockedReason(left, right);
+      if (!Number.isFinite(eLeft) || !Number.isFinite(eRight) || left === right) {
+        galvanicInfo.innerHTML = `<span style="color:#ff7a7a">${t("galvanic_not_spontaneous")}</span>`;
+        galvanicFlowLabel.textContent = "";
+        galvanicStage.classList.add("inactive");
+        galvanicStage.classList.remove("cathode-left");
+        galvanicConnected = false;
+        updateGalvanicMeter(NaN);
+        galvanicAnodeLabel.textContent = left || "--";
+        galvanicCathodeLabel.textContent = right || "--";
+        galvanicSingleLeftLabel.textContent = left || "--";
+        galvanicSingleRightLabel.textContent = right || "--";
+        galvanicDoubleLeftPlate.dataset.metal = left || "";
+        galvanicDoubleRightPlate.dataset.metal = right || "";
+        galvanicSingleLeftPlate.dataset.metal = left || "";
+        galvanicSingleRightPlate.dataset.metal = right || "";
+        galvanicDoubleLeftPolarity.textContent = "-";
+        galvanicDoubleRightPolarity.textContent = "+";
+        galvanicSingleLeftPolarity.textContent = "-";
+        galvanicSingleRightPolarity.textContent = "+";
+        [
+          galvanicDoubleLeftPlate,
+          galvanicDoubleRightPlate,
+          galvanicSingleLeftPlate,
+          galvanicSingleRightPlate
+        ].forEach((plateEl) => plateEl.classList.remove("anode", "cathode", "passivated"));
+        requestAnimationFrame(() => {
+          updateGalvanicWireGeometry();
+          updateGalvanicBubbleGeometry();
+        });
+        setGalvanicAnimationState();
+        return;
+      }
+      galvanicStage.classList.remove("inactive");
+      galvanicAnodeLabel.textContent = left;
+      galvanicCathodeLabel.textContent = right;
+      galvanicSingleLeftLabel.textContent = left;
+      galvanicSingleRightLabel.textContent = right;
+      galvanicDoubleLeftPlate.dataset.metal = left;
+      galvanicDoubleRightPlate.dataset.metal = right;
+      galvanicSingleLeftPlate.dataset.metal = left;
+      galvanicSingleRightPlate.dataset.metal = right;
+
+      const anode = eLeft <= eRight ? left : right;
+      const cathode = eLeft <= eRight ? right : left;
+      const emf = Math.abs(eRight - eLeft);
+      const from = anode;
+      const to = cathode;
+      const cathodeOnLeft = cathode === left;
+
+      galvanicStage.classList.toggle("reverse", anode !== left);
+      galvanicStage.classList.toggle("ion-reverse", anode !== left);
+      galvanicStage.classList.toggle("cathode-left", cathodeOnLeft);
+      galvanicFlowLabel.textContent = t("galvanic_flow_text", { from, to });
+      updateGalvanicMeter(emf);
+      galvanicDoubleLeftPolarity.textContent = left === cathode ? "+" : "-";
+      galvanicDoubleRightPolarity.textContent = right === cathode ? "+" : "-";
+      galvanicSingleLeftPolarity.textContent = left === cathode ? "+" : "-";
+      galvanicSingleRightPolarity.textContent = right === cathode ? "+" : "-";
+      galvanicDoubleLeftPlate.classList.toggle("anode", left === anode);
+      galvanicDoubleLeftPlate.classList.toggle("cathode", left === cathode);
+      galvanicDoubleRightPlate.classList.toggle("anode", right === anode);
+      galvanicDoubleRightPlate.classList.toggle("cathode", right === cathode);
+      galvanicSingleLeftPlate.classList.toggle("anode", left === anode);
+      galvanicSingleLeftPlate.classList.toggle("cathode", left === cathode);
+      galvanicSingleRightPlate.classList.toggle("anode", right === anode);
+      galvanicSingleRightPlate.classList.toggle("cathode", right === cathode);
+      updateGalvanicAnodeCorrosionVisual();
+
+      if (galvanicBlockedReason) {
+        galvanicFlowLabel.textContent = "";
+        updateGalvanicMeter(0);
+        const blockedKey = galvanicBlockedReason === "passivation"
+          ? "galvanic_passivation_no_reaction"
+          : "galvanic_noble_no_reaction";
+        galvanicInfo.innerHTML =
+          `<span style="color:#ffb3b3"><strong>${t(blockedKey)}</strong></span><br>` +
+          `${t("galvanic_cell_type")}：<strong>${t(cellType === "single" ? "galvanic_cell_single" : "galvanic_cell_double")}</strong><br>` +
+          `${t("galvanic_anode")}：<strong>${anode}</strong> (${getGalvanicElectrodeName(anode)})<br>` +
+          `${t("galvanic_cathode")}：<strong>${cathode}</strong> (${getGalvanicElectrodeName(cathode)})<br>` +
+          `${t("galvanic_emf")}：<strong>${emf.toFixed(2)} V</strong>`;
+      } else {
+        galvanicInfo.innerHTML =
+          `<strong>${t("galvanic_title_auto")}</strong><br>` +
+          `${t("galvanic_cell_type")}：<strong>${t(cellType === "single" ? "galvanic_cell_single" : "galvanic_cell_double")}</strong><br>` +
+          `${t("galvanic_cathode_reaction")}：<strong>${buildCathodeReaction(cathode)}</strong><br>` +
+          `${t("galvanic_anode_reaction")}：<strong>${buildAnodeReaction(anode)}</strong><br>` +
+          `${t("galvanic_anode")}：<strong>${anode}</strong> (${getGalvanicElectrodeName(anode)})<br>` +
+          `${t("galvanic_cathode")}：<strong>${cathode}</strong> (${getGalvanicElectrodeName(cathode)})<br>` +
+          `${t("galvanic_electron_flow")}：<strong>${from} → ${to}</strong><br>` +
+          `${t("galvanic_ion_flow")}：<strong>${t(cellType === "single" ? "galvanic_ion_rule_single" : "galvanic_ion_rule", { to: cathode, from: anode })}</strong><br>` +
+          `${t("galvanic_emf")}：<strong>${emf.toFixed(2)} V</strong>`;
+      }
+      requestAnimationFrame(() => {
+        updateGalvanicWireGeometry();
+        updateGalvanicBubbleGeometry();
+      });
+      setGalvanicAnimationState();
+    }
+
+    function openGalvanicToolModal(parentId = "", sourceEl = null) {
+      buildGalvanicMetalOptions();
+      if (!galvanicElectrolyte.value) galvanicElectrolyte.value = "h2so4";
+      if (!galvanicSaltBridge.value) galvanicSaltBridge.value = "kno3";
+      if (!galvanicCellType.value) galvanicCellType.value = "double";
+      galvanicConnected = false;
+      galvanicDepleted = false;
+      galvanicCorrosion = 0;
+      galvanicBlockedReason = "";
+      stopGalvanicCorrosion();
+      startGalvanicWizard();
+      setGalvanicAnimationState();
+      openWithParent(galvanicModal, parentId, sourceEl);
     }
 
     function formatNumber(value) {
@@ -6508,7 +8740,8 @@
       "PO43-": { f: "PO4", q: 3, poly: true }, "CN-": { f: "CN", q: 1, poly: true }, "S2-": { f: "S", q: 2, poly: false },
       "Br-": { f: "Br", q: 1, poly: false }, "I-": { f: "I", q: 1, poly: false },
       "HCO3-": { f: "HCO3", q: 1, poly: true }, "CH3COO-": { f: "CH3COO", q: 1, poly: true }, "OH-": { f: "OH", q: 1, poly: true },
-      "SiO32-": { f: "SiO3", q: 2, poly: true },
+      "SiO32-": { f: "SiO3", q: 2, poly: true }, "HSO3-": { f: "HSO3", q: 1, poly: true },
+      "HSO4-": { f: "HSO4", q: 1, poly: true }, "H2PO4-": { f: "H2PO4", q: 1, poly: true }, "HPO42-": { f: "HPO4", q: 2, poly: true },
     };
     const solubilityCationCn = {
       "H+": "氢", "NH4+": "铵", "Li+": "锂", "Na+": "钠", "K+": "钾", "Ca2+": "钙", "Mg2+": "镁", "Al3+": "铝",
@@ -6519,13 +8752,26 @@
       "Cl-": "氯化", "CO32-": "碳酸", "SO32-": "亚硫酸", "SO42-": "硫酸", "NO2-": "亚硝酸",
       "NO3-": "硝酸", "PO43-": "磷酸", "CN-": "氰化", "S2-": "硫化", "Br-": "溴化", "I-": "碘化",
       "HCO3-": "碳酸氢", "CH3COO-": "醋酸", "OH-": "氢氧化", "SiO32-": "硅酸",
+      "HSO3-": "亚硫酸氢", "HSO4-": "硫酸氢", "H2PO4-": "磷酸二氢", "HPO42-": "磷酸氢",
     };
     let activeSolubilityData = { colHeaders: [], rowHeaders: [], bodyRows: [] };
+    let activeSolubilityDisplayData = { colHeaders: [], rowHeaders: [], bodyRows: [] };
     const solubilityTableCache = {
       ignore: null,
       consider: null,
     };
     let currentSolubilityHit = null;
+    const solubilityFamilyExpanded = { carbonate: false, sulfate: false, phosphate: false };
+    const solubilityFamilyDefs = {
+      carbonate: { base: "CO32-", members: ["HCO3-"] },
+      sulfate: { base: "SO42-", members: ["HSO4-", "SO32-", "HSO3-"] },
+      phosphate: { base: "PO43-", members: ["HPO42-", "H2PO4-"] },
+    };
+    const solubilityDisplayOrder = [
+      "Cl-", "CO32-", "HCO3-", "SO42-", "HSO4-", "SO32-", "HSO3-",
+      "NO2-", "NO3-", "PO43-", "HPO42-", "H2PO4-", "CN-", "S2-",
+      "Br-", "I-", "CH3COO-", "OH-", "SiO32-",
+    ];
 
     function normalizeSolubilitySaltQuery(text) {
       const subMap = { "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9" };
@@ -6546,6 +8792,7 @@
       const c = solubilityQueryIonSpec[cationLabel];
       const a = solubilityQueryIonSpec[anionLabel];
       if (!c || !a) return "";
+      if (cationLabel === "Ag+" && anionLabel === "OH-") return "Ag2O";
       const gcd = (x, y) => {
         let a1 = Math.abs(x), b1 = Math.abs(y);
         while (b1) [a1, b1] = [b1, a1 % b1];
@@ -6567,9 +8814,11 @@
     function highlightSolubilityHit() {
       clearSolubilityHit();
       if (!currentSolubilityHit) return;
-      const colCount = activeSolubilityData.colHeaders.length;
-      if (!colCount) return;
-      const index = currentSolubilityHit.rowIndex * colCount + currentSolubilityHit.colIndex;
+      const colIndex = activeSolubilityDisplayData.colHeaders.indexOf(currentSolubilityHit.anion);
+      const rowIndex = activeSolubilityDisplayData.rowHeaders.indexOf(currentSolubilityHit.cation);
+      if (colIndex < 0 || rowIndex < 0) return;
+      const colCount = activeSolubilityDisplayData.colHeaders.length;
+      const index = rowIndex * colCount + colIndex;
       const cells = solubilityWrap.querySelectorAll(".solubility-body .solubility-cell");
       const cell = cells[index];
       if (cell) cell.classList.add("query-hit");
@@ -6629,13 +8878,53 @@
       });
     }
 
+    function splitIonDisplayParts(label) {
+      const raw = String(label || "");
+      const m = raw.match(/^(.+?)([+-])$/);
+      if (!m) return null;
+      const prefix = m[1];
+      const sign = m[2];
+      const trailingDigitsMatch = prefix.match(/(\d+)$/);
+      if (!trailingDigitsMatch) return { body: prefix, chargeNum: "", sign };
+      const run = trailingDigitsMatch[1];
+      if (run.length >= 2) {
+        return { body: `${prefix.slice(0, -run.length)}${run.slice(0, -1)}`, chargeNum: run.slice(-1), sign };
+      }
+      const prefixWithoutLastDigit = prefix.slice(0, -1);
+      const elementCount = (prefix.match(/[A-Z][a-z]?/g) || []).length;
+      const hasEarlierDigits = /\d/.test(prefixWithoutLastDigit);
+      if (elementCount === 1 && !hasEarlierDigits) {
+        return { body: prefixWithoutLastDigit, chargeNum: run, sign };
+      }
+      return { body: prefix, chargeNum: "", sign };
+    }
+
+    function formatIonHtml(label) {
+      const raw = String(label || "");
+      const parts = splitIonDisplayParts(raw);
+      if (!parts) return raw.replace(/(\d+)/g, "<sub>$1</sub>");
+      const body = parts.body.replace(/(\d+)/g, "<sub>$1</sub>");
+      return `${body}<sup>${parts.chargeNum || ""}${parts.sign}</sup>`;
+    }
+
+    function formatIonUnicode(label) {
+      const subDigits = { "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄", "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉" };
+      const supChars = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "+": "⁺", "-": "⁻" };
+      const raw = String(label || "");
+      const parts = splitIonDisplayParts(raw);
+      const body = (parts ? parts.body : raw).replace(/\d/g, (d) => subDigits[d] || d);
+      if (!parts) return body;
+      const charge = `${parts.chargeNum || ""}${parts.sign}`.replace(/[0-9+-]/g, (ch) => supChars[ch] || ch);
+      return `${body}${charge}`;
+    }
+
     function updateCoexistIonOptions() {
       if (!coexistIonOptions) return;
       const ions = [...activeSolubilityData.rowHeaders, ...activeSolubilityData.colHeaders];
       coexistIonOptions.innerHTML = "";
       [...new Set(ions)].forEach((ion) => {
         const option = document.createElement("option");
-        option.value = ion;
+        option.value = formatIonUnicode(ion);
         coexistIonOptions.appendChild(option);
       });
     }
@@ -6701,7 +8990,7 @@
       const issues = [];
       const pushIssue = (title, a, b, status = "") => {
         const extra = status ? `（${status}）` : "";
-        issues.push(`${title}：${a} + ${b}${extra}`);
+        issues.push(`${title}：${formatIonHtml(a)} + ${formatIonHtml(b)}${extra}`);
       };
       for (let i = 0; i < used.length; i += 1) {
         for (let j = i + 1; j < used.length; j += 1) {
@@ -6732,7 +9021,15 @@
       if (has("OH-") && has("HCO3-")) pushIssue(t("coexist_rule_hydrolysis"), "OH-", "HCO3-", "H2O + CO32-");
 
       if (!issues.length) {
-        coexistResult.innerHTML = `<strong style="color:#55d08f">${t("coexist_ok")}</strong>`;
+        const coloredIonSet = new Set(["Cr3+", "Fe2+", "Fe3+", "Mn2+", "Co2+", "Ni2+", "Ni3+", "Cu2+", "CrO42-", "MnO4-"]);
+        const coloredIons = used.filter((ion) => coloredIonSet.has(ion));
+        let html = `<strong style="color:#55d08f">${t("coexist_ok")}</strong>`;
+        if (coloredIons.length) {
+          html +=
+            `<br><span style="color:#ffb454;font-weight:800">! ${t("coexist_colored_solution")}</span>` +
+            `<br><span style="opacity:.92">${t("coexist_colored_ions")}：${coloredIons.map(formatIonHtml).join("、")}</span>`;
+        }
+        coexistResult.innerHTML = html;
       } else {
         coexistResult.innerHTML =
           `<strong style="color:#ff7a7a">${t("coexist_no")}</strong><br>${t("coexist_reason")}：<br>` +
@@ -7337,15 +9634,15 @@
     async function loadSolubilityTable() {
       solubilityStatus.textContent = t("solubility_loading");
       solubilityWrap.classList.add("hidden");
+
       const ionAqueousColorMap = {
-        "Cr3+": { bg: "rgba(88, 173, 109, 0.32)", border: "rgba(88, 173, 109, 0.9)", text: "#0f172a" }, // green
-        "Fe2+": { bg: "rgba(112, 170, 118, 0.32)", border: "rgba(112, 170, 118, 0.9)", text: "#0f172a" }, // green
-        "Fe3+": { bg: "rgba(181, 130, 82, 0.34)", border: "rgba(161, 108, 57, 0.94)", text: "#0f172a" }, // brown
-        "Mn2+": { bg: "rgba(247, 212, 232, 0.34)", border: "rgba(238, 186, 217, 0.92)", text: "#0f172a" }, // lighter pink
-        "Co2+": { bg: "rgba(231, 136, 189, 0.34)", border: "rgba(218, 95, 168, 0.95)", text: "#0f172a" }, // pink
-        "Ni2+": { bg: "rgba(104, 191, 165, 0.34)", border: "rgba(78, 170, 145, 0.94)", text: "#0f172a" }, // green/turquoise
-        "Ni3+": { bg: "rgba(104, 191, 165, 0.34)", border: "rgba(78, 170, 145, 0.94)", text: "#0f172a" }, // align with nickel ion visual
-        "Cu2+": { bg: "rgba(106, 170, 230, 0.34)", border: "rgba(76, 141, 212, 0.95)", text: "#0f172a" }, // blue
+        "Cr3+": { bg: "rgba(88, 173, 109, 0.32)", border: "rgba(88, 173, 109, 0.9)", text: "#0f172a" },
+        "Fe2+": { bg: "rgba(112, 170, 118, 0.32)", border: "rgba(112, 170, 118, 0.9)", text: "#0f172a" },
+        "Fe3+": { bg: "rgba(181, 130, 82, 0.34)", border: "rgba(161, 108, 57, 0.94)", text: "#0f172a" },
+        "Mn2+": { bg: "rgba(247, 212, 232, 0.34)", border: "rgba(238, 186, 217, 0.92)", text: "#0f172a" },
+        "Co2+": { bg: "rgba(231, 136, 189, 0.34)", border: "rgba(218, 95, 168, 0.95)", text: "#0f172a" },
+        "Ni3+": { bg: "rgba(104, 191, 165, 0.34)", border: "rgba(78, 170, 145, 0.94)", text: "#0f172a" },
+        "Cu2+": { bg: "rgba(106, 170, 230, 0.34)", border: "rgba(76, 141, 212, 0.95)", text: "#0f172a" },
       };
       const applyIonWaterColor = (cell, ionLabel) => {
         const swatch = ionAqueousColorMap[String(ionLabel || "").trim()];
@@ -7355,641 +9652,239 @@
         cell.style.color = swatch.text;
         cell.style.fontWeight = "750";
       };
-      try {
-        if (solubilityHydrolysis === "ignore" || solubilityHydrolysis === "consider") {
-          const cached = solubilityTableCache[solubilityHydrolysis];
-          if (cached) {
-            activeSolubilityData = {
-              colHeaders: [...cached.data.colHeaders],
-              rowHeaders: [...cached.data.rowHeaders],
-              bodyRows: cached.data.bodyRows.map((row) => [...row]),
-            };
-            updateCoexistIonOptions();
-            solubilityWrap.innerHTML = cached.html;
-            solubilityStatus.textContent = "";
-            solubilityWrap.classList.remove("hidden");
-            if (solubilitySaltInput.value.trim()) querySaltSolubility();
-            else clearSolubilityHit();
-            return;
-          }
-          const colHeaders = ["Cl-", "CO32-", "SO32-", "SO42-", "NO2-", "NO3-", "PO43-", "CN-", "S2-", "Br-", "I-", "HCO3-", "CH3COO-", "OH-", "SiO32-"];
-          const rowHeaders = ["H+", "NH4+", "Li+", "Na+", "K+", "Ca2+", "Mg2+", "Al3+", "Ba2+", "Cr3+", "Fe2+", "Fe3+", "Sn2+", "Mn2+", "Co2+", "Ni3+", "Cu2+", "Zn2+", "Ag+", "Pb2+"];
-          const bodyRows = solubilityHydrolysis === "ignore"
-            ? [
-                ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶"],
-                ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶"],
-                ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶"],
-                ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶"],
-                ["溶", "沉", "沉", "微", "溶", "溶", "沉", "溶", "水解", "溶", "溶", "溶", "溶", "微", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "溶", "水解", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "双水解", "双水解", "溶", "溶", "溶", "双水解", "双水解", "双水解", "溶", "溶", "双水解", "双水解", "沉", "沉"],
-                ["溶", "沉", "沉", "沉", "溶", "溶", "沉", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "沉"],
-                ["溶", "双水解", "双水解", "溶", "溶", "溶", "双水解", "双水解", "双水解", "溶", "溶", "双水解", "双水解", "沉", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "双水解", "氧还", "溶", "溶", "溶", "双水解", "络合", "氧还", "溶", "氧还", "双水解", "双水解", "沉", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "双水解", "双水解", "溶", "溶", "溶", "双水解", "络合", "氧还", "溶", "氧还", "双水解", "双水解", "沉", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "络合", "沉", "溶", "氧还", "溶", "溶", "沉", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["沉", "沉", "沉", "微", "微", "溶", "沉", "络合", "沉", "沉", "沉", "沉", "溶", "沉", "沉"],
-                ["微", "沉", "沉", "沉", "溶", "溶", "沉", "络合", "沉", "微", "沉", "沉", "溶", "沉", "沉"],
-              ]
-            : [
-                ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "沉", "溶"],
-                ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶"],
-                ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶"],
-                ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶"],
-                ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶"],
-                ["溶", "沉", "沉", "微", "溶", "溶", "沉", "溶", "水解", "溶", "溶", "溶", "溶", "微", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "溶", "水解", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "双水解", "双水解", "溶", "溶", "溶", "双水解", "双水解", "双水解", "溶", "溶", "双水解", "双水解", "沉", "双水解"],
-                ["溶", "沉", "沉", "沉", "溶", "溶", "沉", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "沉"],
-                ["溶", "双水解", "双水解", "溶", "溶", "溶", "双水解", "双水解", "双水解", "溶", "溶", "双水解", "双水解", "沉", "双水解"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "双水解", "氧还", "溶", "溶", "溶", "双水解", "络合", "氧还", "溶", "氧还", "双水解", "双水解", "沉", "双水解"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["溶", "双水解", "双水解", "溶", "溶", "溶", "双水解", "络合", "氧还", "溶", "氧还", "双水解", "双水解", "沉", "双水解"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "络合", "沉", "溶", "氧还", "溶", "溶", "沉", "沉"],
-                ["溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
-                ["沉", "沉", "沉", "微", "微", "溶", "沉", "络合", "沉", "沉", "沉", "沉", "溶", "沉", "沉"],
-                ["微", "沉", "沉", "沉", "溶", "溶", "沉", "沉", "沉", "微", "沉", "沉", "溶", "沉", "沉"],
-              ];
-          activeSolubilityData = { colHeaders: [...colHeaders], rowHeaders: [...rowHeaders], bodyRows: bodyRows.map((row) => [...row]) };
-          updateCoexistIonOptions();
-          const colCount = colHeaders.length + 1;
-          const ionDisplayMap = {
-            "Cl-": "Cl<sup class='ion-charge'>-</sup>",
-            "F-": "F<sup class='ion-charge'>-</sup>",
-            "Br-": "Br<sup class='ion-charge'>-</sup>",
-            "I-": "I<sup class='ion-charge'>-</sup>",
-            "S2-": "S<sup class='ion-charge'>2-</sup>",
-            "SO32-": "SO<sub>3</sub><sup class='ion-charge'>2-</sup>",
-            "SO42-": "SO<sub>4</sub><sup class='ion-charge'>2-</sup>",
-            "NO2-": "NO<sub>2</sub><sup class='ion-charge'>-</sup>",
-            "NO3-": "NO<sub>3</sub><sup class='ion-charge'>-</sup>",
-            "PO43-": "PO<sub>4</sub><sup class='ion-charge'>3-</sup>",
-            "CN-": "CN<sup class='ion-charge'>-</sup>",
-            "SCN-": "SCN<sup class='ion-charge'>-</sup>",
-            "CO32-": "CO<sub>3</sub><sup class='ion-charge'>2-</sup>",
-            "SiO32-": "SiO<sub>3</sub><sup class='ion-charge'>2-</sup>",
-            "HCO3-": "HCO<sub>3</sub><sup class='ion-charge'>-</sup>",
-            "CH3COO-": "CH<sub>3</sub>COO<sup class='ion-charge'>-</sup>",
-            "OH-": "OH<sup class='ion-charge'>-</sup>",
-            "H+": "H<sup class='ion-charge'>+</sup>",
-            "NH4+": "NH<sub>4</sub><sup class='ion-charge'>+</sup>",
-            "Li+": "Li<sup class='ion-charge'>+</sup>",
-            "Na+": "Na<sup class='ion-charge'>+</sup>",
-            "K+": "K<sup class='ion-charge'>+</sup>",
-            "Ca2+": "Ca<sup class='ion-charge'>2+</sup>",
-            "Mg2+": "Mg<sup class='ion-charge'>2+</sup>",
-            "Al3+": "Al<sup class='ion-charge'>3+</sup>",
-            "Ba2+": "Ba<sup class='ion-charge'>2+</sup>",
-            "Cr3+": "Cr<sup class='ion-charge'>3+</sup>",
-            "Fe2+": "Fe<sup class='ion-charge'>2+</sup>",
-            "Fe3+": "Fe<sup class='ion-charge'>3+</sup>",
-            "Sn2+": "Sn<sup class='ion-charge'>2+</sup>",
-            "Mn2+": "Mn<sup class='ion-charge'>2+</sup>",
-            "Co2+": "Co<sup class='ion-charge'>2+</sup>",
-            "Ni3+": "Ni<sup class='ion-charge'>3+</sup>",
-            "Cu2+": "Cu<sup class='ion-charge'>2+</sup>",
-            "Zn2+": "Zn<sup class='ion-charge'>2+</sup>",
-            "Ag+": "Ag<sup class='ion-charge'>+</sup>",
-            "Pb2+": "Pb<sup class='ion-charge'>2+</sup>",
-          };
-          const formatIonLabel = (label) => {
-            const raw = String(label || "").trim();
-            if (ionDisplayMap[raw]) return `<span class="ion-label">${ionDisplayMap[raw]}</span>`;
-            return `<span class="ion-label">${raw.replace(/(\d+)/g, "<sub>$1</sub>")}</span>`;
-          };
-          const ionSpec = {
-            "H+": { f: "H", q: 1, poly: false }, "NH4+": { f: "NH4", q: 1, poly: true },
-            "Li+": { f: "Li", q: 1, poly: false }, "Na+": { f: "Na", q: 1, poly: false },
-            "K+": { f: "K", q: 1, poly: false }, "Ca2+": { f: "Ca", q: 2, poly: false },
-            "Mg2+": { f: "Mg", q: 2, poly: false }, "Al3+": { f: "Al", q: 3, poly: false },
-            "Ba2+": { f: "Ba", q: 2, poly: false }, "Cr3+": { f: "Cr", q: 3, poly: false },
-            "Fe2+": { f: "Fe", q: 2, poly: false }, "Fe3+": { f: "Fe", q: 3, poly: false },
-            "Sn2+": { f: "Sn", q: 2, poly: false }, "Mn2+": { f: "Mn", q: 2, poly: false },
-            "Co2+": { f: "Co", q: 2, poly: false }, "Ni3+": { f: "Ni", q: 3, poly: false },
-            "Cu2+": { f: "Cu", q: 2, poly: false }, "Zn2+": { f: "Zn", q: 2, poly: false },
-            "Ag+": { f: "Ag", q: 1, poly: false }, "Pb2+": { f: "Pb", q: 2, poly: false },
-            "Cl-": { f: "Cl", q: 1, poly: false }, "Br-": { f: "Br", q: 1, poly: false },
-            "I-": { f: "I", q: 1, poly: false }, "S2-": { f: "S", q: 2, poly: false },
-            "SO32-": { f: "SO3", q: 2, poly: true }, "SO42-": { f: "SO4", q: 2, poly: true },
-            "NO2-": { f: "NO2", q: 1, poly: true }, "NO3-": { f: "NO3", q: 1, poly: true },
-            "PO43-": { f: "PO4", q: 3, poly: true }, "CN-": { f: "CN", q: 1, poly: true },
-            "CO32-": { f: "CO3", q: 2, poly: true }, "SiO32-": { f: "SiO3", q: 2, poly: true }, "HCO3-": { f: "HCO3", q: 1, poly: true },
-            "CH3COO-": { f: "CH3COO", q: 1, poly: true }, "OH-": { f: "OH", q: 1, poly: true },
-          };
-          const gcd = (a, b) => { let x = Math.abs(a), y = Math.abs(b); while (y) [x, y] = [y, x % y]; return x || 1; };
-          const lcm = (a, b) => Math.abs(a * b) / gcd(a, b);
-          const formulaSub = (text) => String(text).replace(/(\d+)/g, "<sub>$1</sub>");
-          const formatIonUnit = (formula, count, poly) => {
-            const body = formulaSub(formula);
-            if (count <= 1) return body;
-            return poly ? `(${body})<sub>${count}</sub>` : `${body}<sub>${count}</sub>`;
-          };
-          const stripTags = (html) => String(html || "").replace(/<[^>]*>/g, "");
-          const formulaClass = (formulaHtml) => {
-            const n = stripTags(formulaHtml).length;
-            if (n >= 12) return "compound-small";
-            if (n >= 9) return "compound-mid";
-            return "";
-          };
-          const buildCompoundFormula = (cationLabel, anionLabel) => {
-            const c = ionSpec[cationLabel];
-            const a = ionSpec[anionLabel];
-            if (!c || !a) return "—";
-            const total = lcm(c.q, a.q);
-            const nC = total / c.q;
-            const nA = total / a.q;
-            return `${formatIonUnit(c.f, nC, c.poly)}${formatIonUnit(a.f, nA, a.poly)}`;
-          };
 
-          const layout = document.createElement("div");
-          layout.className = "solubility-layout";
-          const corner = document.createElement("div");
-          corner.className = "solubility-cell solubility-head solubility-corner";
-          corner.textContent = "阳/阴";
-          layout.appendChild(corner);
-          const colGrid = document.createElement("div");
-          colGrid.className = "solubility-grid solubility-colheads";
-          colGrid.style.gridTemplateColumns = `repeat(${colCount - 1}, minmax(72px, 1fr))`;
-          colHeaders.forEach((value) => {
-            const cell = document.createElement("div");
-            cell.className = "solubility-cell solubility-head";
-            cell.innerHTML = value ? formatIonLabel(value) : "—";
-            colGrid.appendChild(cell);
+      const fullColHeaders = [
+        "Cl-", "CO32-", "SO32-", "HSO3-", "SO42-", "HSO4-", "NO2-", "NO3-",
+        "H2PO4-", "HPO42-", "PO43-", "CN-", "S2-", "Br-", "I-", "HCO3-", "CH3COO-", "OH-", "SiO32-"
+      ];
+      const fullRowHeaders = [
+        "H+", "NH4+", "Li+", "Na+", "K+", "Ca2+", "Mg2+", "Al3+", "Ba2+", "Cr3+",
+        "Fe2+", "Fe3+", "Sn2+", "Mn2+", "Co2+", "Ni3+", "Cu2+", "Zn2+", "Ag+", "Pb2+"
+      ];
+      const fullBodyRows = [
+        ["溶(挥)", "弱 气", "弱 气", "弱 气", "溶", "溶", "弱", "溶", "弱", "弱", "弱", "弱", "弱 气", "溶", "溶", "气体", "弱", "水", "沉"],
+        ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "水解", "溶", "溶", "溶", "溶", "弱", "双水解"],
+        ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "水解", "溶", "溶", "溶", "溶", "溶", "溶"],
+        ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "水解", "溶", "溶", "溶", "溶", "溶", "溶"],
+        ["溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "水解", "溶", "溶", "溶", "溶", "溶", "溶"],
+        ["溶", "沉", "沉", "溶", "微", "溶", "溶", "溶", "溶", "沉", "沉", "溶", "水解", "溶", "溶", "溶", "溶", "微", "沉"],
+        ["溶", "沉", "沉", "溶", "溶", "溶", "溶", "溶", "溶", "沉", "沉", "溶", "水解", "溶", "溶", "溶", "溶", "沉", "沉"],
+        ["溶", "双水解", "双水解", "双水解", "溶", "溶", "溶", "溶", "溶", "双水解", "双水解", "双水解", "双水解", "溶", "溶", "双水解", "双水解", "沉", "双水解"],
+        ["溶", "沉", "沉", "溶", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "溶", "溶", "溶", "溶", "溶", "溶", "溶", "沉"],
+        ["溶", "双水解", "双水解", "双水解", "溶", "溶", "溶", "溶", "溶", "双水解", "双水解", "双水解", "双水解", "溶", "溶", "双水解", "双水解", "沉", "双水解"],
+        ["溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "溶", "沉", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
+        ["溶", "双水解", "氧还", "氧还", "溶", "溶", "溶", "溶", "溶", "双水解", "双水解", "络合", "氧还", "溶", "氧还", "双水解", "双水解", "沉", "双水解"],
+        ["溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "溶", "沉", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
+        ["溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "溶", "沉", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
+        ["溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "溶", "沉", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
+        ["溶", "双水解", "双水解", "双水解", "溶", "溶", "溶", "溶", "溶", "双水解", "双水解", "络合", "氧还", "溶", "氧还", "双水解", "双水解", "沉", "双水解"],
+        ["溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "溶", "沉", "沉", "络合", "沉", "溶", "氧还", "溶", "溶", "沉", "沉"],
+        ["溶", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "溶", "沉", "沉", "沉", "沉", "溶", "溶", "溶", "溶", "沉", "沉"],
+        ["沉", "沉", "沉", "沉", "微", "溶", "微", "溶", "溶", "沉", "沉", "络合", "沉", "沉", "沉", "沉", "溶", "沉", "沉"],
+        ["微", "沉", "沉", "沉", "沉", "沉", "溶", "溶", "溶", "沉", "沉", "沉", "沉", "微", "沉", "沉", "溶", "沉", "沉"],
+      ];
+
+      const ionDisplayMap = {
+        "Cl-": "Cl<sup class='ion-charge'>-</sup>",
+        "CO32-": "CO<sub>3</sub><sup class='ion-charge'>2-</sup>",
+        "HCO3-": "HCO<sub>3</sub><sup class='ion-charge'>-</sup>",
+        "SO32-": "SO<sub>3</sub><sup class='ion-charge'>2-</sup>",
+        "HSO3-": "HSO<sub>3</sub><sup class='ion-charge'>-</sup>",
+        "SO42-": "SO<sub>4</sub><sup class='ion-charge'>2-</sup>",
+        "HSO4-": "HSO<sub>4</sub><sup class='ion-charge'>-</sup>",
+        "NO2-": "NO<sub>2</sub><sup class='ion-charge'>-</sup>",
+        "NO3-": "NO<sub>3</sub><sup class='ion-charge'>-</sup>",
+        "H2PO4-": "H<sub>2</sub>PO<sub>4</sub><sup class='ion-charge'>-</sup>",
+        "HPO42-": "HPO<sub>4</sub><sup class='ion-charge'>2-</sup>",
+        "PO43-": "PO<sub>4</sub><sup class='ion-charge'>3-</sup>",
+        "CN-": "CN<sup class='ion-charge'>-</sup>",
+        "S2-": "S<sup class='ion-charge'>2-</sup>",
+        "Br-": "Br<sup class='ion-charge'>-</sup>",
+        "I-": "I<sup class='ion-charge'>-</sup>",
+        "CH3COO-": "CH<sub>3</sub>COO<sup class='ion-charge'>-</sup>",
+        "OH-": "OH<sup class='ion-charge'>-</sup>",
+        "SiO32-": "SiO<sub>3</sub><sup class='ion-charge'>2-</sup>",
+        "H+": "H<sup class='ion-charge'>+</sup>",
+        "NH4+": "NH<sub>4</sub><sup class='ion-charge'>+</sup>",
+        "Li+": "Li<sup class='ion-charge'>+</sup>",
+        "Na+": "Na<sup class='ion-charge'>+</sup>",
+        "K+": "K<sup class='ion-charge'>+</sup>",
+        "Ca2+": "Ca<sup class='ion-charge'>2+</sup>",
+        "Mg2+": "Mg<sup class='ion-charge'>2+</sup>",
+        "Al3+": "Al<sup class='ion-charge'>3+</sup>",
+        "Ba2+": "Ba<sup class='ion-charge'>2+</sup>",
+        "Cr3+": "Cr<sup class='ion-charge'>3+</sup>",
+        "Fe2+": "Fe<sup class='ion-charge'>2+</sup>",
+        "Fe3+": "Fe<sup class='ion-charge'>3+</sup>",
+        "Sn2+": "Sn<sup class='ion-charge'>2+</sup>",
+        "Mn2+": "Mn<sup class='ion-charge'>2+</sup>",
+        "Co2+": "Co<sup class='ion-charge'>2+</sup>",
+        "Ni3+": "Ni<sup class='ion-charge'>3+</sup>",
+        "Cu2+": "Cu<sup class='ion-charge'>2+</sup>",
+        "Zn2+": "Zn<sup class='ion-charge'>2+</sup>",
+        "Ag+": "Ag<sup class='ion-charge'>+</sup>",
+        "Pb2+": "Pb<sup class='ion-charge'>2+</sup>",
+      };
+      const formatIonLabel = (label) => {
+        const raw = String(label || "").trim();
+        if (ionDisplayMap[raw]) return `<span class="ion-label">${ionDisplayMap[raw]}</span>`;
+        return `<span class="ion-label">${raw.replace(/(\d+)/g, "<sub>$1</sub>")}</span>`;
+      };
+
+      const fullData = {
+        colHeaders: [...fullColHeaders],
+        rowHeaders: [...fullRowHeaders],
+        bodyRows: fullBodyRows.map((row) => [...row]),
+      };
+
+      const fullIndexMap = new Map(fullData.colHeaders.map((label, idx) => [label, idx]));
+      const visibleColHeaders = solubilityDisplayOrder.filter((label) => {
+        if (!fullIndexMap.has(label)) return false;
+        if (solubilityFamilyDefs.carbonate.members.includes(label) && !solubilityFamilyExpanded.carbonate) return false;
+        if (solubilityFamilyDefs.sulfate.members.includes(label) && !solubilityFamilyExpanded.sulfate) return false;
+        if (solubilityFamilyDefs.phosphate.members.includes(label) && !solubilityFamilyExpanded.phosphate) return false;
+        return true;
+      });
+      const visibleBodyRows = fullData.bodyRows.map((row) => visibleColHeaders.map((label) => row[fullIndexMap.get(label)] || "—"));
+      const displayData = { colHeaders: visibleColHeaders, rowHeaders: [...fullData.rowHeaders], bodyRows: visibleBodyRows };
+      activeSolubilityData = fullData;
+      activeSolubilityDisplayData = displayData;
+      updateCoexistIonOptions();
+
+      const ionSpec = {
+        "H+": { f: "H", q: 1, poly: false }, "NH4+": { f: "NH4", q: 1, poly: true },
+        "Li+": { f: "Li", q: 1, poly: false }, "Na+": { f: "Na", q: 1, poly: false },
+        "K+": { f: "K", q: 1, poly: false }, "Ca2+": { f: "Ca", q: 2, poly: false },
+        "Mg2+": { f: "Mg", q: 2, poly: false }, "Al3+": { f: "Al", q: 3, poly: false },
+        "Ba2+": { f: "Ba", q: 2, poly: false }, "Cr3+": { f: "Cr", q: 3, poly: false },
+        "Fe2+": { f: "Fe", q: 2, poly: false }, "Fe3+": { f: "Fe", q: 3, poly: false },
+        "Sn2+": { f: "Sn", q: 2, poly: false }, "Mn2+": { f: "Mn", q: 2, poly: false },
+        "Co2+": { f: "Co", q: 2, poly: false }, "Ni3+": { f: "Ni", q: 3, poly: false },
+        "Cu2+": { f: "Cu", q: 2, poly: false }, "Zn2+": { f: "Zn", q: 2, poly: false },
+        "Ag+": { f: "Ag", q: 1, poly: false }, "Pb2+": { f: "Pb", q: 2, poly: false },
+        "Cl-": { f: "Cl", q: 1, poly: false }, "CO32-": { f: "CO3", q: 2, poly: true },
+        "HCO3-": { f: "HCO3", q: 1, poly: true }, "SO32-": { f: "SO3", q: 2, poly: true },
+        "HSO3-": { f: "HSO3", q: 1, poly: true }, "SO42-": { f: "SO4", q: 2, poly: true },
+        "HSO4-": { f: "HSO4", q: 1, poly: true }, "NO2-": { f: "NO2", q: 1, poly: true },
+        "NO3-": { f: "NO3", q: 1, poly: true }, "H2PO4-": { f: "H2PO4", q: 1, poly: true },
+        "HPO42-": { f: "HPO4", q: 2, poly: true }, "PO43-": { f: "PO4", q: 3, poly: true },
+        "CN-": { f: "CN", q: 1, poly: true }, "S2-": { f: "S", q: 2, poly: false },
+        "Br-": { f: "Br", q: 1, poly: false }, "I-": { f: "I", q: 1, poly: false },
+        "CH3COO-": { f: "CH3COO", q: 1, poly: true }, "OH-": { f: "OH", q: 1, poly: true },
+        "SiO32-": { f: "SiO3", q: 2, poly: true },
+      };
+      const gcd = (a, b) => { let x = Math.abs(a), y = Math.abs(b); while (y) [x, y] = [y, x % y]; return x || 1; };
+      const lcm = (a, b) => Math.abs(a * b) / gcd(a, b);
+      const formulaSub = (text) => String(text).replace(/(\d+)/g, "<sub>$1</sub>");
+      const formatIonUnit = (formula, count, poly) => {
+        const body = formulaSub(formula);
+        if (count <= 1) return body;
+        return poly ? `(${body})<sub>${count}</sub>` : `${body}<sub>${count}</sub>`;
+      };
+      const stripTags = (html) => String(html || "").replace(/<[^>]*>/g, "");
+      const formulaClass = (formulaHtml) => {
+        const n = stripTags(formulaHtml).length;
+        if (n >= 12) return "compound-small";
+        if (n >= 9) return "compound-mid";
+        return "";
+      };
+      const buildCompoundFormula = (cationLabel, anionLabel) => {
+        if (cationLabel === "Ag+" && anionLabel === "OH-") return "Ag<sub>2</sub>O";
+        const c = ionSpec[cationLabel];
+        const a = ionSpec[anionLabel];
+        if (!c || !a) return "—";
+        const total = lcm(c.q, a.q);
+        const nC = total / c.q;
+        const nA = total / a.q;
+        return `${formatIonUnit(c.f, nC, c.poly)}${formatIonUnit(a.f, nA, a.poly)}`;
+      };
+      const familyByBase = {
+        "CO32-": "carbonate",
+        "SO42-": "sulfate",
+        "PO43-": "phosphate",
+      };
+
+      const colCount = displayData.colHeaders.length + 1;
+      const layout = document.createElement("div");
+      layout.className = "solubility-layout";
+
+      const corner = document.createElement("div");
+      corner.className = "solubility-cell solubility-head solubility-corner";
+      corner.textContent = "阳/阴";
+      layout.appendChild(corner);
+
+      const colGrid = document.createElement("div");
+      colGrid.className = "solubility-grid solubility-colheads";
+      colGrid.style.gridTemplateColumns = `repeat(${colCount - 1}, minmax(72px, 1fr))`;
+      displayData.colHeaders.forEach((value) => {
+        const cell = document.createElement("div");
+        cell.className = "solubility-cell solubility-head";
+        cell.innerHTML = value ? formatIonLabel(value) : "—";
+        const family = familyByBase[value];
+        if (family) {
+          cell.style.cursor = "pointer";
+          cell.title = solubilityFamilyExpanded[family] ? "点击收起同族" : "点击展开同族";
+          cell.addEventListener("click", () => {
+            solubilityFamilyExpanded[family] = !solubilityFamilyExpanded[family];
+            loadSolubilityTable();
           });
-          layout.appendChild(colGrid);
-          const rowGrid = document.createElement("div");
-          rowGrid.className = "solubility-grid solubility-rowheads";
-          rowGrid.style.gridAutoRows = "52px";
-          rowHeaders.forEach((value) => {
-            const cell = document.createElement("div");
-            cell.className = "solubility-cell solubility-head";
-            cell.style.aspectRatio = "auto";
-            cell.style.height = "52px";
-            cell.innerHTML = value ? formatIonLabel(value) : "—";
-            applyIonWaterColor(cell, value);
-            rowGrid.appendChild(cell);
-          });
-          layout.appendChild(rowGrid);
-          const bodyGrid = document.createElement("div");
-          bodyGrid.className = "solubility-grid solubility-body";
-          bodyGrid.style.gridTemplateColumns = `repeat(${colCount - 1}, minmax(72px, 1fr))`;
-          bodyGrid.style.gridAutoRows = "52px";
-          bodyRows.forEach((row, r) => {
-            for (let c = 0; c < colCount - 1; c += 1) {
-              const value = row[c] ?? "";
-              const cell = document.createElement("div");
-              cell.className = "solubility-cell solubility-toggle-cell";
-              if (currentSolubilityHit && currentSolubilityHit.rowIndex === r && currentSolubilityHit.colIndex === c) {
-                cell.classList.add("query-hit");
-              }
-              cell.style.aspectRatio = "auto";
-              cell.style.height = "52px";
-              const solText = value || "—";
-              const formulaText = buildCompoundFormula(rowHeaders[r], colHeaders[c]);
-              const cls = formulaClass(formulaText);
-              const formulaHtml = formulaText === "—" ? "—" : `<span class="compound-formula ${cls}">${formulaText}</span>`;
-              cell.dataset.view = "sol";
-              cell.dataset.solText = solText;
-              cell.dataset.formulaHtml = formulaHtml;
-              cell.textContent = solText;
-              bodyGrid.appendChild(cell);
-            }
-          });
-          layout.appendChild(bodyGrid);
-          solubilityWrap.innerHTML = "";
-          solubilityWrap.appendChild(layout);
-          solubilityTableCache[solubilityHydrolysis] = {
-            data: { colHeaders: [...colHeaders], rowHeaders: [...rowHeaders], bodyRows: bodyRows.map((row) => [...row]) },
-            html: solubilityWrap.innerHTML,
-          };
-          solubilityStatus.textContent = "";
-          solubilityWrap.classList.remove("hidden");
-          if (solubilitySaltInput.value.trim()) querySaltSolubility();
-          return;
-      }
+        }
+        colGrid.appendChild(cell);
+      });
+      layout.appendChild(colGrid);
 
-        const url = "https://zh.wikipedia.org/w/api.php?action=parse&page=%E6%BA%B6%E8%A7%A3%E6%80%A7%E5%85%A8%E8%A1%A8&prop=text&format=json&origin=*";
-        const res = await fetch(url);
-        const data = await res.json();
-        const html = data?.parse?.text?.["*"];
-        if (!html) throw new Error("No data");
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        doc.querySelectorAll(".ambox, .messagebox, .metadata, .navbox").forEach((el) => el.remove());
-        const tables = Array.from(doc.querySelectorAll(".mw-parser-output table.wikitable, .mw-parser-output table"));
-        const table = tables
-          .map((t) => ({ t, score: t.textContent.includes("溶解") ? 10 : 0, rows: t.querySelectorAll("tr").length }))
-          .sort((a, b) => (b.score + b.rows) - (a.score + a.rows))[0]?.t;
-        if (!table) throw new Error("No table");
-        table.querySelectorAll("sup, .reference").forEach((el) => el.remove());
-        const rows = Array.from(table.querySelectorAll("tr"))
-          .map((tr) => Array.from(tr.querySelectorAll("th, td")).map((cell) => cell.textContent.trim()))
-          .filter((row) => row.length > 0);
-        if (rows.length === 0) throw new Error("No rows");
+      const rowGrid = document.createElement("div");
+      rowGrid.className = "solubility-grid solubility-rowheads";
+      rowGrid.style.gridAutoRows = "52px";
+      displayData.rowHeaders.forEach((value) => {
+        const cell = document.createElement("div");
+        cell.className = "solubility-cell solubility-head";
+        cell.style.aspectRatio = "auto";
+        cell.style.height = "52px";
+        cell.innerHTML = value ? formatIonLabel(value) : "—";
+        applyIonWaterColor(cell, value);
+        rowGrid.appendChild(cell);
+      });
+      layout.appendChild(rowGrid);
 
-        const expandTable = (tableEl) => {
-          const grid = [];
-          const trs = Array.from(tableEl.querySelectorAll("tr"));
-          trs.forEach((tr, r) => {
-            if (!grid[r]) grid[r] = [];
-            let c = 0;
-            Array.from(tr.querySelectorAll("th, td")).forEach((cell) => {
-              while (grid[r][c] !== undefined) c += 1;
-              const rs = Math.max(1, parseInt(cell.getAttribute("rowspan") || "1", 10));
-              const cs = Math.max(1, parseInt(cell.getAttribute("colspan") || "1", 10));
-              const text = cell.textContent.replace(/\s+/g, " ").trim();
-              for (let rr = r; rr < r + rs; rr += 1) {
-                if (!grid[rr]) grid[rr] = [];
-                for (let cc = c; cc < c + cs; cc += 1) {
-                  grid[rr][cc] = text;
-                }
-              }
-              c += cs;
-            });
-          });
-          const maxCols = Math.max(...grid.map((r) => r.length));
-          return grid.map((r) => Array.from({ length: maxCols }, (_, i) => (r[i] || "").trim()));
-        };
-
-        const matrix = expandTable(table).filter((r) => r.some((cell) => cell));
-        if (matrix.length === 0) throw new Error("No matrix");
-
-        const ionSubMap = { "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9" };
-        const ionSupMap = { "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "⁺": "+", "⁻": "-" };
-        const normalizeIonKey = (text) => String(text || "")
-          .replace(/\s+/g, "")
-          .replace(/[()（）\[\]【】]/g, "")
-          .replace(/[−﹣－]/g, "-")
-          .replace(/[＋﹢]/g, "+")
-          .replace(/[·•]/g, "")
-          .replace(/[₀-₉]/g, (m) => ionSubMap[m] || m)
-          .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻]/g, (m) => ionSupMap[m] || m)
-          .replace(/^\+/, "")
-          .toUpperCase();
-
-        const wantedAnions = [
-          "Cl-", "F-", "Br-", "I-", "S2-", "SO32-", "SO42-",
-          "S2O32-", "NO2-", "NO3-", "PO43-", "CN-", "SCN-", "CO32-", "SiO32-", "MnO4-", "CH3COO-"
-        ];
-        const wantedCations = [
-          "H+", "NH4+", "Li+", "Na+", "K+", "Rb+", "Cs+", "Be2+", "Ca2+", "Mg+", "Sr2+", "Ba+", "Ra+", "Ti4+",
-          "Cr3+", "Mn2+", "Fe2+", "Fe3+", "Co2+", "Ni2+", "Cu2+", "Zn2+", "Ag+"
-        ];
-        const cationAlias = {
-          "MG+": ["MG2+"],
-          "BA+": ["BA2+"],
-          "RA+": ["RA2+"]
-        };
-        const anionAlias = {
-          "CH3COO-": ["ACO-", "CH3CO2-"]
-        };
-
-        const anionKeySet = new Set(wantedAnions.map((a) => normalizeIonKey(a)));
-        let headerRowIdx = 0;
-        let bestScore = -1;
-        matrix.forEach((row, idx) => {
-          const score = row.reduce((acc, cell) => acc + (anionKeySet.has(normalizeIonKey(cell)) ? 1 : 0), 0);
-          if (score > bestScore) {
-            bestScore = score;
-            headerRowIdx = idx;
-          }
-        });
-        if (bestScore < 6) throw new Error("Solubility header not found");
-
-        const headerRow = matrix[headerRowIdx];
-        const resolveColIndex = (ion) => {
-          const keys = [normalizeIonKey(ion), ...((anionAlias[ion] || []).map((a) => normalizeIonKey(a)))];
-          for (let i = 0; i < headerRow.length; i += 1) {
-            const hk = normalizeIonKey(headerRow[i]);
-            if (keys.includes(hk)) return i;
-          }
-          return -1;
-        };
-        const colResolved = wantedAnions.map((a) => ({ label: a, idx: resolveColIndex(a) }));
-
-        const resolveRowIndex = (ion) => {
-          const keys = [normalizeIonKey(ion), ...((cationAlias[normalizeIonKey(ion)] || []).map((a) => normalizeIonKey(a)))];
-          const candidates = [];
-          matrix.forEach((row, rIdx) => {
-            for (let c = 0; c < row.length; c += 1) {
-              if (keys.includes(normalizeIonKey(row[c]))) {
-                candidates.push(rIdx);
-                break;
-              }
-            }
-          });
-          if (!candidates.length) return -1;
-          let bestRow = candidates[0];
-          let bestFilled = -1;
-          candidates.forEach((rIdx) => {
-            const filled = colResolved.reduce((acc, col) => {
-              if (col.idx < 0) return acc;
-              const v = (matrix[rIdx]?.[col.idx] || "").trim();
-              return acc + (v && v !== "-" && v !== "—" ? 1 : 0);
-            }, 0);
-            if (filled > bestFilled) {
-              bestFilled = filled;
-              bestRow = rIdx;
-            }
-          });
-          return bestRow;
-        };
-        const rowResolved = wantedCations.map((c) => ({ label: c, idx: resolveRowIndex(c) }));
-
-        const normalizeSolubilityValue = (text) => {
-          const s = String(text || "").replace(/\s+/g, "").replace(/[−﹣－]/g, "-");
-          if (!s || s === "-" || s === "—") return "—";
-          if (s === "水") return "溶";
-          if (s === "不") return "沉";
-          return s;
-        };
-
-        const manualSolubility = {
-          "H+": {
-            "Cl-": "溶", "F-": "溶", "Br-": "溶", "I-": "溶", "S2-": "溶",
-            "SO32-": "溶", "SO42-": "溶", "S2O32-": "溶", "NO2-": "溶", "NO3-": "溶",
-            "PO43-": "溶", "CN-": "溶", "SCN-": "溶", "CO32-": "溶"
-          },
-          "NH4+": {
-            "Cl-": "溶", "F-": "溶", "Br-": "溶", "I-": "溶", "S2-": "溶",
-            "SO32-": "溶", "SO42-": "溶", "S2O32-": "溶", "NO2-": "溶", "NO3-": "溶",
-            "PO43-": "溶", "CN-": "溶", "SCN-": "溶", "CO32-": "溶"
-          },
-          "Li+": {
-            "Cl-": "溶", "F-": "微", "Br-": "溶", "I-": "溶", "S2-": "溶",
-            "SO32-": "溶", "SO42-": "溶", "S2O32-": "溶", "NO2-": "溶", "NO3-": "溶",
-            "PO43-": "微", "CN-": "溶", "SCN-": "溶", "CO32-": "微"
-          },
-          "Na+": {
-            "Cl-": "溶", "F-": "溶", "Br-": "溶", "I-": "溶", "S2-": "溶",
-            "SO32-": "溶", "SO42-": "溶", "S2O32-": "溶", "NO2-": "溶", "NO3-": "溶",
-            "PO43-": "溶", "CN-": "溶", "SCN-": "溶", "CO32-": "溶"
-          },
-          "K+": {
-            "Cl-": "溶", "F-": "溶", "Br-": "溶", "I-": "溶", "S2-": "溶",
-            "SO32-": "溶", "SO42-": "溶", "S2O32-": "溶", "NO2-": "溶", "NO3-": "溶",
-            "PO43-": "溶", "CN-": "溶", "SCN-": "溶", "CO32-": "溶"
-          },
-          "Rb+": {
-            "Cl-": "溶", "F-": "溶", "Br-": "溶", "I-": "溶", "S2-": "溶",
-            "SO32-": "溶", "SO42-": "溶", "S2O32-": "溶", "NO2-": "溶", "NO3-": "溶",
-            "PO43-": "溶", "CN-": "溶", "SCN-": "溶", "CO32-": "溶"
-          },
-          "Cs+": {
-            "Cl-": "溶", "F-": "溶", "Br-": "溶", "I-": "溶", "S2-": "溶",
-            "SO32-": "溶", "SO42-": "溶", "S2O32-": "溶", "NO2-": "溶", "NO3-": "溶",
-            "PO43-": "溶", "CN-": "溶", "SCN-": "溶", "CO32-": "溶"
-          },
-          "Be2+": {
-            "Cl-": "溶", "F-": "溶", "Br-": "溶", "I-": "溶", "S2-": "—",
-            "SO32-": "—", "SO42-": "溶", "S2O32-": "—", "NO2-": "—", "NO3-": "溶",
-            "PO43-": "—", "CN-": "—", "SCN-": "溶", "CO32-": "—"
-          },
-          "Ca2+": {
-            "Cl-": "溶", "F-": "沉", "Br-": "溶", "I-": "溶", "S2-": "溶/易水解",
-            "SO32-": "沉", "SO42-": "微", "S2O32-": "溶", "NO2-": "溶", "NO3-": "溶",
-            "PO43-": "沉", "CN-": "溶", "SCN-": "溶", "CO32-": "沉"
-          }
-        };
-        const applyManualSolubility = (cation, anion, value) => {
-          const row = manualSolubility[cation];
-          if (!row) return value;
-          return row[anion] || value;
-        };
-
-        const colHeaders = colResolved.map((c) => c.label);
-        const rowHeaders = rowResolved.map((r) => r.label);
-        const bodyRows = rowResolved.map((rowMeta) => colResolved.map((colMeta) => {
-          if (rowMeta.idx < 0 || colMeta.idx < 0) return "—";
-          const parsed = normalizeSolubilityValue(matrix[rowMeta.idx]?.[colMeta.idx]);
-          return applyManualSolubility(rowMeta.label, colMeta.label, parsed);
-        }));
-        const colCount = colHeaders.length + 1;
-
-        const ionDisplayMap = {
-          "Cl-": "Cl<sup class='ion-charge'>-</sup>",
-          "ClO-": "ClO<sup class='ion-charge'>-</sup>",
-          "ClO2-": "ClO<sub>2</sub><sup class='ion-charge'>-</sup>",
-          "ClO3-": "ClO<sub>3</sub><sup class='ion-charge'>-</sup>",
-          "ClO4-": "ClO<sub>4</sub><sup class='ion-charge'>-</sup>",
-          "F-": "F<sup class='ion-charge'>-</sup>",
-          "Br-": "Br<sup class='ion-charge'>-</sup>",
-          "I-": "I<sup class='ion-charge'>-</sup>",
-          "IO-": "IO<sup class='ion-charge'>-</sup>",
-          "IO3-": "IO<sub>3</sub><sup class='ion-charge'>-</sup>",
-          "S2-": "S<sup class='ion-charge'>2-</sup>",
-          "SO32-": "SO<sub>3</sub><sup class='ion-charge'>2-</sup>",
-          "SO42-": "SO<sub>4</sub><sup class='ion-charge'>2-</sup>",
-          "S2O32-": "S<sub>2</sub>O<sub>3</sub><sup class='ion-charge'>2-</sup>",
-          "NO2-": "NO<sub>2</sub><sup class='ion-charge'>-</sup>",
-          "NO3-": "NO<sub>3</sub><sup class='ion-charge'>-</sup>",
-          "PO43-": "PO<sub>4</sub><sup class='ion-charge'>3-</sup>",
-          "CN-": "CN<sup class='ion-charge'>-</sup>",
-          "SCN-": "SCN<sup class='ion-charge'>-</sup>",
-          "CO32-": "CO<sub>3</sub><sup class='ion-charge'>2-</sup>",
-          "SiO32-": "SiO<sub>3</sub><sup class='ion-charge'>2-</sup>",
-          "MnO4-": "MnO<sub>4</sub><sup class='ion-charge'>-</sup>",
-          "CrO4-": "CrO<sub>4</sub><sup class='ion-charge'>-</sup>",
-          "CH3COO-": "CH<sub>3</sub>COO<sup class='ion-charge'>-</sup>",
-          "H+": "H<sup class='ion-charge'>+</sup>",
-          "NH4+": "NH<sub>4</sub><sup class='ion-charge'>+</sup>",
-          "Li+": "Li<sup class='ion-charge'>+</sup>",
-          "Na+": "Na<sup class='ion-charge'>+</sup>",
-          "K+": "K<sup class='ion-charge'>+</sup>",
-          "Rb+": "Rb<sup class='ion-charge'>+</sup>",
-          "Cs+": "Cs<sup class='ion-charge'>+</sup>",
-          "Be2+": "Be<sup class='ion-charge'>2+</sup>",
-          "Ca2+": "Ca<sup class='ion-charge'>2+</sup>",
-          "Mg+": "Mg<sup class='ion-charge'>+</sup>",
-          "Sr2+": "Sr<sup class='ion-charge'>2+</sup>",
-          "Ba+": "Ba<sup class='ion-charge'>+</sup>",
-          "Ra+": "Ra<sup class='ion-charge'>+</sup>",
-          "Ti4+": "Ti<sup class='ion-charge'>4+</sup>",
-          "Cr3+": "Cr<sup class='ion-charge'>3+</sup>",
-          "Mn2+": "Mn<sup class='ion-charge'>2+</sup>",
-          "Fe2+": "Fe<sup class='ion-charge'>2+</sup>",
-          "Fe3+": "Fe<sup class='ion-charge'>3+</sup>",
-          "Co2+": "Co<sup class='ion-charge'>2+</sup>",
-          "Ni2+": "Ni<sup class='ion-charge'>2+</sup>",
-          "Cu2+": "Cu<sup class='ion-charge'>2+</sup>",
-          "Zn2+": "Zn<sup class='ion-charge'>2+</sup>",
-          "Ag+": "Ag<sup class='ion-charge'>+</sup>",
-          "Hg22+": "Hg<sub>2</sub><sup class='ion-charge'>2+</sup>"
-        };
-
-        const formatIonLabel = (label) => {
-          const raw = String(label || "").trim();
-          if (ionDisplayMap[raw]) return `<span class="ion-label">${ionDisplayMap[raw]}</span>`;
-          return `<span class="ion-label">${raw.replace(/(\d+)/g, "<sub>$1</sub>")}</span>`;
-        };
-
-        const ionSpec = {
-          "H+": { f: "H", q: 1, poly: false },
-          "NH4+": { f: "NH4", q: 1, poly: true },
-          "Li+": { f: "Li", q: 1, poly: false },
-          "Na+": { f: "Na", q: 1, poly: false },
-          "K+": { f: "K", q: 1, poly: false },
-          "Rb+": { f: "Rb", q: 1, poly: false },
-          "Cs+": { f: "Cs", q: 1, poly: false },
-          "Be2+": { f: "Be", q: 2, poly: false },
-          "Ca2+": { f: "Ca", q: 2, poly: false },
-          "Mg+": { f: "Mg", q: 1, poly: false },
-          "Sr2+": { f: "Sr", q: 2, poly: false },
-          "Ba+": { f: "Ba", q: 1, poly: false },
-          "Ra+": { f: "Ra", q: 1, poly: false },
-          "Ti4+": { f: "Ti", q: 4, poly: false },
-          "Cr3+": { f: "Cr", q: 3, poly: false },
-          "Mn2+": { f: "Mn", q: 2, poly: false },
-          "Fe2+": { f: "Fe", q: 2, poly: false },
-          "Fe3+": { f: "Fe", q: 3, poly: false },
-          "Co2+": { f: "Co", q: 2, poly: false },
-          "Ni2+": { f: "Ni", q: 2, poly: false },
-          "Cu2+": { f: "Cu", q: 2, poly: false },
-          "Zn2+": { f: "Zn", q: 2, poly: false },
-          "Ag+": { f: "Ag", q: 1, poly: false },
-          "Hg22+": { f: "Hg2", q: 2, poly: true },
-          "Cl-": { f: "Cl", q: 1, poly: false },
-          "ClO-": { f: "ClO", q: 1, poly: true },
-          "ClO2-": { f: "ClO2", q: 1, poly: true },
-          "ClO3-": { f: "ClO3", q: 1, poly: true },
-          "ClO4-": { f: "ClO4", q: 1, poly: true },
-          "F-": { f: "F", q: 1, poly: false },
-          "Br-": { f: "Br", q: 1, poly: false },
-          "I-": { f: "I", q: 1, poly: false },
-          "IO-": { f: "IO", q: 1, poly: true },
-          "IO3-": { f: "IO3", q: 1, poly: true },
-          "S2-": { f: "S", q: 2, poly: false },
-          "SO32-": { f: "SO3", q: 2, poly: true },
-          "SO42-": { f: "SO4", q: 2, poly: true },
-          "S2O32-": { f: "S2O3", q: 2, poly: true },
-          "NO2-": { f: "NO2", q: 1, poly: true },
-          "NO3-": { f: "NO3", q: 1, poly: true },
-          "PO43-": { f: "PO4", q: 3, poly: true },
-          "CN-": { f: "CN", q: 1, poly: true },
-          "SCN-": { f: "SCN", q: 1, poly: true },
-          "CO32-": { f: "CO3", q: 2, poly: true },
-          "SiO32-": { f: "SiO3", q: 2, poly: true },
-          "MnO4-": { f: "MnO4", q: 1, poly: true },
-          "CrO4-": { f: "CrO4", q: 1, poly: true },
-          "CH3COO-": { f: "CH3COO", q: 1, poly: true },
-        };
-
-        const gcd = (a, b) => {
-          let x = Math.abs(a);
-          let y = Math.abs(b);
-          while (y) [x, y] = [y, x % y];
-          return x || 1;
-        };
-        const lcm = (a, b) => Math.abs(a * b) / gcd(a, b);
-        const formulaSub = (text) => String(text).replace(/(\d+)/g, "<sub>$1</sub>");
-        const formatIonUnit = (formula, count, poly) => {
-          const body = formulaSub(formula);
-          if (count <= 1) return body;
-          return poly ? `(${body})<sub>${count}</sub>` : `${body}<sub>${count}</sub>`;
-        };
-        const stripTags = (html) => String(html || "").replace(/<[^>]*>/g, "");
-        const formulaClass = (formulaHtml) => {
-          const n = stripTags(formulaHtml).length;
-          if (n >= 12) return "compound-small";
-          if (n >= 9) return "compound-mid";
-          return "";
-        };
-        const buildCompoundFormula = (cationLabel, anionLabel) => {
-          const c = ionSpec[cationLabel];
-          const a = ionSpec[anionLabel];
-          if (!c || !a) return "—";
-          const total = lcm(c.q, a.q);
-          const nC = total / c.q;
-          const nA = total / a.q;
-          return `${formatIonUnit(c.f, nC, c.poly)}${formatIonUnit(a.f, nA, a.poly)}`;
-        };
-
-        const layout = document.createElement("div");
-        layout.className = "solubility-layout";
-
-        const corner = document.createElement("div");
-        corner.className = "solubility-cell solubility-head solubility-corner";
-        corner.textContent = "阳/阴";
-        layout.appendChild(corner);
-
-        const colGrid = document.createElement("div");
-        colGrid.className = "solubility-grid solubility-colheads";
-        colGrid.style.gridTemplateColumns = `repeat(${colCount - 1}, minmax(72px, 1fr))`;
-        colHeaders.forEach((value) => {
+      const bodyGrid = document.createElement("div");
+      bodyGrid.className = "solubility-grid solubility-body";
+      bodyGrid.style.gridTemplateColumns = `repeat(${colCount - 1}, minmax(72px, 1fr))`;
+      bodyGrid.style.gridAutoRows = "52px";
+      displayData.bodyRows.forEach((row, r) => {
+        for (let c = 0; c < colCount - 1; c += 1) {
+          const value = row[c] ?? "";
+          const cation = displayData.rowHeaders[r];
+          const anion = displayData.colHeaders[c];
           const cell = document.createElement("div");
-          cell.className = "solubility-cell solubility-head";
-          cell.innerHTML = value ? formatIonLabel(value) : "—";
-          colGrid.appendChild(cell);
-        });
-        layout.appendChild(colGrid);
-
-        const rowGrid = document.createElement("div");
-        rowGrid.className = "solubility-grid solubility-rowheads";
-        rowGrid.style.gridAutoRows = "52px";
-        rowHeaders.forEach((value) => {
-          const cell = document.createElement("div");
-          cell.className = "solubility-cell solubility-head";
+          cell.className = "solubility-cell solubility-toggle-cell";
+          if (currentSolubilityHit && currentSolubilityHit.cation === cation && currentSolubilityHit.anion === anion) {
+            cell.classList.add("query-hit");
+          }
           cell.style.aspectRatio = "auto";
           cell.style.height = "52px";
-          cell.innerHTML = value ? formatIonLabel(value) : "—";
-          applyIonWaterColor(cell, value);
-          rowGrid.appendChild(cell);
-        });
-        layout.appendChild(rowGrid);
+          const solText = value || "—";
+          const formulaText = buildCompoundFormula(cation, anion);
+          const cls = formulaClass(formulaText);
+          const formulaHtml = formulaText === "—" ? "—" : `<span class="compound-formula ${cls}">${formulaText}</span>`;
+          cell.dataset.view = "sol";
+          cell.dataset.solText = solText;
+          cell.dataset.formulaHtml = formulaHtml;
+          cell.dataset.cation = cation;
+          cell.dataset.anion = anion;
+          cell.textContent = solText;
+          bodyGrid.appendChild(cell);
+        }
+      });
+      layout.appendChild(bodyGrid);
 
-        const bodyGrid = document.createElement("div");
-        bodyGrid.className = "solubility-grid solubility-body";
-        bodyGrid.style.gridTemplateColumns = `repeat(${colCount - 1}, minmax(72px, 1fr))`;
-        bodyGrid.style.gridAutoRows = "52px";
-        bodyRows.forEach((row, r) => {
-          for (let c = 0; c < colCount - 1; c += 1) {
-            const value = row[c] ?? "";
-            const cell = document.createElement("div");
-            cell.className = "solubility-cell solubility-toggle-cell";
-            cell.style.aspectRatio = "auto";
-            cell.style.height = "52px";
-            const solText = value || "—";
-            const formulaText = buildCompoundFormula(rowHeaders[r], colHeaders[c]);
-            const cls = formulaClass(formulaText);
-            const formulaHtml = formulaText === "—"
-              ? "—"
-              : `<span class="compound-formula ${cls}">${formulaText}</span>`;
-            cell.dataset.view = "sol";
-            cell.dataset.solText = solText;
-            cell.dataset.formulaHtml = formulaHtml;
-            cell.textContent = solText;
-            cell.addEventListener("click", () => {
-              if (cell.dataset.view === "sol") {
-                cell.dataset.view = "formula";
-                cell.innerHTML = cell.dataset.formulaHtml || "—";
-              } else {
-                cell.dataset.view = "sol";
-                cell.textContent = cell.dataset.solText || "—";
-              }
-            });
-            bodyGrid.appendChild(cell);
-          }
-        });
-        layout.appendChild(bodyGrid);
-
-        solubilityWrap.innerHTML = "";
-        solubilityWrap.appendChild(layout);
-        solubilityStatus.textContent = "";
-        solubilityWrap.classList.remove("hidden");
-      } catch (err) {
-        solubilityStatus.textContent = t("solubility_error");
-        solubilityWrap.classList.add("hidden");
-      }
+      solubilityWrap.innerHTML = "";
+      solubilityWrap.appendChild(layout);
+      solubilityStatus.textContent = "";
+      solubilityWrap.classList.remove("hidden");
+      if (solubilitySaltInput.value.trim()) querySaltSolubility();
+      else clearSolubilityHit();
     }
-
 
     const flameIonData = [
       {
@@ -8147,6 +10042,8 @@
     const organicMolecules = {
       methane: {
         id: "methane",
+        formulaRaw: "CH4",
+        formulaDisplay: "CH4",
         atoms: [
           { e: "C", p: [0, 0, 0] },
           { e: "H", p: [1, 1, 1] },
@@ -8159,6 +10056,8 @@
       },
       ethylene: {
         id: "ethylene",
+        formulaRaw: "C2H4",
+        formulaDisplay: "CH2=CH2",
         atoms: [
           { e: "C", p: [-0.72, 0, 0] },
           { e: "C", p: [0.72, 0, 0] },
@@ -8172,6 +10071,8 @@
       },
       ethyne: {
         id: "ethyne",
+        formulaRaw: "C2H2",
+        formulaDisplay: "HC≡CH",
         atoms: [
           { e: "H", p: [-2.0, 0, 0] },
           { e: "C", p: [-0.85, 0, 0] },
@@ -8183,6 +10084,8 @@
       },
       ethanol: {
         id: "ethanol",
+        formulaRaw: "C2H6O",
+        formulaDisplay: "C2H5OH",
         atoms: [
           { e: "C", p: [-0.9, 0, 0] },
           { e: "C", p: [0.45, 0.1, 0] },
@@ -8199,6 +10102,8 @@
       },
       ethyl_ether: {
         id: "ethyl_ether",
+        formulaRaw: "C4H10O",
+        formulaDisplay: "C2H5OC2H5",
         atoms: [
           { e: "C", p: [-2.0, 0.1, 0] },
           { e: "C", p: [-0.9, 0.2, 0] },
@@ -8215,6 +10120,8 @@
       },
       ethylamine: {
         id: "ethylamine",
+        formulaRaw: "C2H7N",
+        formulaDisplay: "C2H5NH2",
         atoms: [
           { e: "C", p: [-1.0, 0, 0] },
           { e: "C", p: [0.3, 0.1, 0] },
@@ -8228,6 +10135,8 @@
       },
       benzene: {
         id: "benzene",
+        formulaRaw: "C6H6",
+        formulaDisplay: "C6H6",
         atoms: [
           { e: "C", p: [1.45, 0, 0] }, { e: "C", p: [0.73, 1.26, 0] }, { e: "C", p: [-0.73, 1.26, 0] },
           { e: "C", p: [-1.45, 0, 0] }, { e: "C", p: [-0.73, -1.26, 0] }, { e: "C", p: [0.73, -1.26, 0] },
@@ -8239,6 +10148,8 @@
       },
       phenol: {
         id: "phenol",
+        formulaRaw: "C6H6O",
+        formulaDisplay: "C6H5OH",
         atoms: [
           { e: "C", p: [1.45, 0, 0] }, { e: "C", p: [0.73, 1.26, 0] }, { e: "C", p: [-0.73, 1.26, 0] },
           { e: "C", p: [-1.45, 0, 0] }, { e: "C", p: [-0.73, -1.26, 0] }, { e: "C", p: [0.73, -1.26, 0] },
@@ -8251,6 +10162,8 @@
       },
       aniline: {
         id: "aniline",
+        formulaRaw: "C6H7N",
+        formulaDisplay: "C6H5NH2",
         atoms: [
           { e: "C", p: [1.45, 0, 0] }, { e: "C", p: [0.73, 1.26, 0] }, { e: "C", p: [-0.73, 1.26, 0] },
           { e: "C", p: [-1.45, 0, 0] }, { e: "C", p: [-0.73, -1.26, 0] }, { e: "C", p: [0.73, -1.26, 0] },
@@ -8263,6 +10176,8 @@
       },
       nitrobenzene: {
         id: "nitrobenzene",
+        formulaRaw: "C6H5NO2",
+        formulaDisplay: "C6H5NO2",
         atoms: [
           { e: "C", p: [1.45, 0, 0] }, { e: "C", p: [0.73, 1.26, 0] }, { e: "C", p: [-0.73, 1.26, 0] },
           { e: "C", p: [-1.45, 0, 0] }, { e: "C", p: [-0.73, -1.26, 0] }, { e: "C", p: [0.73, -1.26, 0] },
@@ -8275,6 +10190,8 @@
       },
       acetone: {
         id: "acetone",
+        formulaRaw: "C3H6O",
+        formulaDisplay: "CH3COCH3",
         atoms: [
           { e: "C", p: [-1.25, 0.35, 0] },
           { e: "C", p: [0, 0, 0] },
@@ -8317,6 +10234,46 @@
 
     function getOrganicPalette() {
       return ORGANIC_NIGHT_PALETTE;
+    }
+
+    function formatChemicalFormulaHtml(text) {
+      return String(text || "").replace(/([A-Za-z)\]])(\d+)/g, (_, lead, digits) => `${lead}<sub>${digits}</sub>`);
+    }
+
+    function formatChemicalFormulaUnicode(text) {
+      const subs = { "0":"₀","1":"₁","2":"₂","3":"₃","4":"₄","5":"₅","6":"₆","7":"₇","8":"₈","9":"₉" };
+      return String(text || "").replace(/([A-Za-z)\]])(\d+)/g, (_, lead, digits) => lead + digits.split("").map((d) => subs[d] || d).join(""));
+    }
+
+    function stripTrailingFormulaFromLabel(label) {
+      return String(label || "").replace(/\s+[A-Za-z][A-Za-z0-9=≡()]*\s*$/, "").trim();
+    }
+
+    function getOrganicDisplayFormula(moleculeId) {
+      const molecule = organicMolecules[moleculeId];
+      return molecule?.formulaDisplay || molecule?.formulaRaw || "";
+    }
+
+    function getOrganicLabelHtml(moleculeId) {
+      const key = `organic_${moleculeId}`;
+      const baseName = stripTrailingFormulaFromLabel(t(key));
+      return `${baseName} ${formatChemicalFormulaHtml(getOrganicDisplayFormula(moleculeId))}`;
+    }
+
+    function getOrganicLabelUnicode(moleculeId) {
+      const key = `organic_${moleculeId}`;
+      const baseName = stripTrailingFormulaFromLabel(t(key));
+      return `${baseName} ${formatChemicalFormulaUnicode(getOrganicDisplayFormula(moleculeId))}`;
+    }
+
+    function formatOrganicInfoHtml(moleculeId) {
+      const molecule = organicMolecules[moleculeId];
+      let text = String(t(`organic_info_${moleculeId}`) || "");
+      if (!molecule) return text;
+      if (molecule.formulaRaw) {
+        text = text.replaceAll(molecule.formulaRaw, molecule.formulaDisplay || molecule.formulaRaw);
+      }
+      return formatChemicalFormulaHtml(text);
     }
 
     function resizeOrganicCanvas() {
@@ -8466,13 +10423,13 @@
 
       organicCtx.fillStyle = palette.text;
       organicCtx.font = "600 13px Avenir Next, sans-serif";
-      organicCtx.fillText(t(`organic_${molecule.id}`), 14, 24);
+      organicCtx.fillText(getOrganicLabelUnicode(molecule.id), 14, 24);
 
       organicState.raf = requestAnimationFrame(renderOrganicFrame);
     }
 
     function updateOrganicInfo() {
-      organicInfo.textContent = t(`organic_info_${organicState.molecule}`);
+      organicInfo.innerHTML = formatOrganicInfoHtml(organicState.molecule);
     }
 
     function getOrganicMoleculeItems() {
@@ -8499,7 +10456,7 @@
         btn.type = "button";
         btn.className = "organic-molecule-btn";
         if (item.id === organicState.molecule) btn.classList.add("active");
-        btn.textContent = t(item.key);
+        btn.innerHTML = getOrganicLabelHtml(item.id);
         btn.addEventListener("click", () => {
           organicState.molecule = item.id;
           renderOrganicMoleculeList();
@@ -8737,7 +10694,7 @@
         categoryLine +
         radioLine;
       const configDisplay = configDisplayTextForMode(configuration, z, configMode.value);
-      configBox.innerHTML = `<strong>${configDisplay}</strong>`;
+      configBox.innerHTML = `<strong>${formatConfigurationSupHtml(configDisplay)}</strong>`;
       buildOrbitalDiagram(configForMode(configuration, z, configMode.value));
     }
 
@@ -9055,7 +11012,6 @@
     }
 
     let currentShells = computeConfiguration(Number(zInput.value)).shellTotals;
-    let cloudPoints = [];
     let orbitalParticles = [];
 
     zInput.addEventListener("input", (e) => setZ(e.target.value));
@@ -9280,6 +11236,16 @@
       renderSolutionInputs();
     }
 
+    function openBondToolModal(parentId = "", sourceEl = null) {
+      openWithParent(bondModal, parentId, sourceEl);
+      renderBondElementOptions();
+    }
+
+    function openStdElectrodeToolModal(parentId = "", sourceEl = null) {
+      renderStandardElectrodeTable();
+      openWithParent(stdElectrodeModal, parentId, sourceEl);
+    }
+
     function openSolubilityToolModal(parentId = "", sourceEl = null) {
       openWithParent(solubilityModal, parentId, sourceEl);
       requestAnimationFrame(() => {
@@ -9352,6 +11318,9 @@
     settingsClose.addEventListener("click", closeSettings);
     massBackBtn.addEventListener("click", () => backFromModal(massModal));
     moleBackBtn.addEventListener("click", () => backFromModal(moleModal));
+    bondBackBtn.addEventListener("click", () => backFromModal(bondModal));
+    stdElectrodeBackBtn.addEventListener("click", () => backFromModal(stdElectrodeModal));
+    galvanicBackBtn.addEventListener("click", () => backFromModal(galvanicModal));
     organicBackBtn.addEventListener("click", () => backFromModal(organicModal));
     flameBackBtn.addEventListener("click", () => backFromModal(flameModal));
     solutionBackBtn.addEventListener("click", () => backFromModal(solutionModal));
@@ -9381,11 +11350,20 @@
     openOrganicTool.addEventListener("click", (e) => {
       openOrganicToolModal("moreToolsModal", e.currentTarget);
     });
+    openGalvanicTool.addEventListener("click", (e) => {
+      openGalvanicToolModal("moreToolsModal", e.currentTarget);
+    });
     openFlameTool.addEventListener("click", (e) => {
       openFlameToolModal("moreToolsModal", e.currentTarget);
     });
     openSolutionTool.addEventListener("click", (e) => {
       openSolutionToolModal("moreToolsModal", e.currentTarget);
+    });
+    openBondTool.addEventListener("click", (e) => {
+      openBondToolModal("moreToolsModal", e.currentTarget);
+    });
+    openStdElectrodeTool.addEventListener("click", (e) => {
+      openStdElectrodeToolModal("moreToolsModal", e.currentTarget);
     });
     openSolubilityTool.addEventListener("click", (e) => {
       openSolubilityToolModal("moreToolsModal", e.currentTarget);
@@ -9405,8 +11383,11 @@
     sideMassBtn.addEventListener("click", (e) => openMassToolModal("", e.currentTarget));
     sideMoleBtn.addEventListener("click", (e) => openMoleToolModal("", e.currentTarget));
     sideOrganicBtn.addEventListener("click", (e) => openOrganicToolModal("", e.currentTarget));
+    sideGalvanicBtn.addEventListener("click", (e) => openGalvanicToolModal("", e.currentTarget));
     sideFlameBtn.addEventListener("click", (e) => openFlameToolModal("", e.currentTarget));
     sideSolutionBtn.addEventListener("click", (e) => openSolutionToolModal("", e.currentTarget));
+    sideBondBtn.addEventListener("click", (e) => openBondToolModal("", e.currentTarget));
+    sideStdElectrodeBtn.addEventListener("click", (e) => openStdElectrodeToolModal("", e.currentTarget));
     sideSolubilityBtn.addEventListener("click", (e) => openSolubilityToolModal("", e.currentTarget));
     sideAcidBtn.addEventListener("click", (e) => openAcidDictionary("", e.currentTarget));
     sideHydrideBtn.addEventListener("click", (e) => openHydrideDictionary("", e.currentTarget));
@@ -9444,6 +11425,89 @@
       if (e.target === moleModal) moleModal.classList.remove("show");
     });
     moleClose.addEventListener("click", () => moleModal.classList.remove("show"));
+    bondModal.addEventListener("click", (e) => {
+      if (e.target === bondModal) bondModal.classList.remove("show");
+    });
+    bondClose.addEventListener("click", () => bondModal.classList.remove("show"));
+    stdElectrodeModal.addEventListener("click", (e) => {
+      if (e.target === stdElectrodeModal) stdElectrodeModal.classList.remove("show");
+    });
+    stdElectrodeClose.addEventListener("click", () => stdElectrodeModal.classList.remove("show"));
+    bondCalcBtn.addEventListener("click", runBondCheck);
+    bondElementA.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") runBondCheck();
+    });
+    bondElementB.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") runBondCheck();
+    });
+    galvanicModal.addEventListener("click", (e) => {
+      if (e.target === galvanicModal) galvanicModal.classList.remove("show");
+    });
+    galvanicClose.addEventListener("click", () => galvanicModal.classList.remove("show"));
+    galvanicCellType.addEventListener("change", () => {
+      galvanicConnected = false;
+      galvanicDepleted = false;
+      galvanicCorrosion = 0;
+      stopGalvanicCorrosion();
+      renderGalvanicCell();
+    });
+    galvanicElectrolyte.addEventListener("change", () => {
+      applyGalvanicConfigTexts();
+      renderGalvanicCell();
+    });
+    galvanicSaltBridge.addEventListener("change", () => {
+      applyGalvanicConfigTexts();
+      renderGalvanicCell();
+    });
+    galvanicMetalA.addEventListener("change", () => {
+      galvanicConnected = false;
+      galvanicDepleted = false;
+      galvanicCorrosion = 0;
+      stopGalvanicCorrosion();
+      renderGalvanicCell();
+    });
+    galvanicMetalB.addEventListener("change", () => {
+      galvanicConnected = false;
+      galvanicDepleted = false;
+      galvanicCorrosion = 0;
+      stopGalvanicCorrosion();
+      renderGalvanicCell();
+    });
+    galvanicSwapBtn.addEventListener("click", swapGalvanicMetals);
+    if (galvanicSwapBtnQuick) galvanicSwapBtnQuick.addEventListener("click", swapGalvanicMetals);
+    galvanicConnectBtn.addEventListener("click", toggleGalvanicConnection);
+    if (galvanicConnectBtnQuick) galvanicConnectBtnQuick.addEventListener("click", toggleGalvanicConnection);
+    galvanicWizardPickSingle.addEventListener("click", () => {
+      setGalvanicWizardCellType("single");
+      setGalvanicStep(galvanicSetupStep);
+    });
+    galvanicWizardPickDouble.addEventListener("click", () => {
+      setGalvanicWizardCellType("double");
+      setGalvanicStep(galvanicSetupStep);
+    });
+    galvanicWizardBack.addEventListener("click", () => {
+      setGalvanicStep(galvanicSetupStep - 1);
+    });
+    galvanicWizardNext.addEventListener("click", () => {
+      if (galvanicSetupStep === 2 && galvanicWizardMetalA.value === galvanicWizardMetalB.value) {
+        galvanicWizardMetalB.value = galvanicWizardMetalA.value === "Ag" ? "Cu" : "Ag";
+      }
+      const maxStep = getGalvanicWizardCellType() === "single" ? 3 : 4;
+      if (galvanicSetupStep >= maxStep) {
+        completeGalvanicWizard();
+        return;
+      }
+      setGalvanicStep(galvanicSetupStep + 1);
+    });
+    if (galvanicReconfigBtn) galvanicReconfigBtn.addEventListener("click", startGalvanicWizard);
+    window.addEventListener("resize", () => {
+      if (galvanicModal.classList.contains("show")) {
+        requestAnimationFrame(() => {
+          updateGalvanicWireGeometry();
+          updateGalvanicBubbleGeometry();
+        });
+      }
+    });
     organicModal.addEventListener("click", (e) => {
       if (e.target === organicModal) closeOrganicToolModal();
     });
@@ -9470,7 +11534,6 @@
     }
 
     function applyModelMode() {
-      // 电子云模型已移除，统一使用波尔模型
       modelMode = "bohr";
       localStorage.setItem("modelMode", "bohr");
       updateModelControls();
@@ -9534,7 +11597,6 @@
       applyToolsNavMode("button");
       toolsNavSelect.value = "button";
     }
-    cloudMode = "fill";
     const savedOrbitalPanelViewMode = localStorage.getItem("orbitalPanelViewMode");
     if (savedOrbitalPanelViewMode === "orbital" || savedOrbitalPanelViewMode === "atomic" || savedOrbitalPanelViewMode === "config") {
       orbitalPanelViewMode = savedOrbitalPanelViewMode === "config" ? "atomic" : savedOrbitalPanelViewMode;
@@ -9605,7 +11667,7 @@
       });
       input.addEventListener("change", () => {
         const canon = canonizeInputIon(input.value);
-        if (canon) input.value = canon;
+        if (canon) input.value = formatIonUnicode(canon);
       });
     });
 
@@ -9843,9 +11905,6 @@
     function draw() {
       const { width, height } = canvas.getBoundingClientRect();
       ctx.clearRect(0, 0, width, height);
-      if (modelMode === "cloud") {
-        drawCloudStage(width, height);
-      }
       const now = performance.now();
       const dtSec = Math.min(0.05, Math.max(0.001, (now - lastFrameMs) / 1000));
       lastFrameMs = now;
@@ -9860,48 +11919,21 @@
       ctx.scale(zoom, zoom);
 
       // nucleus
-      const cloudPalette = modelMode === "cloud" ? getCloudStagePalette() : null;
       const nucleusGlow = ctx.createRadialGradient(0, 0, 5, 0, 0, 28 * hoverScale);
-      nucleusGlow.addColorStop(0, modelMode === "cloud" ? "rgba(255, 126, 90, 0.95)" : "rgba(255, 184, 107, 0.9)");
-      nucleusGlow.addColorStop(1, modelMode === "cloud" ? "rgba(255, 126, 90, 0.0)" : "rgba(255, 184, 107, 0.0)");
+      nucleusGlow.addColorStop(0, "rgba(255, 184, 107, 0.9)");
+      nucleusGlow.addColorStop(1, "rgba(255, 184, 107, 0.0)");
       ctx.fillStyle = nucleusGlow;
       ctx.beginPath();
       ctx.arc(0, 0, 28 * hoverScale, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = modelMode === "cloud" ? "rgba(255, 88, 72, 0.95)" : "rgba(255, 211, 160, 0.9)";
+      ctx.fillStyle = "rgba(255, 211, 160, 0.9)";
       ctx.beginPath();
       ctx.arc(0, 0, 8 * hoverScale, 0, Math.PI * 2);
       ctx.fill();
 
-      if (modelMode === "bohr") {
-        const maxRingRadius = Math.max(120, Math.min(width, height) * 0.4 / Math.max(0.7, zoom));
-        drawBohrModel(dtSec, maxRingRadius);
-      } else {
-        // 3D axes
-        drawAxes(ctx, 1);
-        if (cloudMode === "fill") {
-          drawCloudContourOrbitals(currentConfig);
-        } else {
-          const projected = orbitalParticles.map((p) => {
-            const rp = rotatePoint(p);
-            const pp = projectPoint(rp, 1);
-            return { ...pp, a: p.a, phase: p.phase || 1 };
-          });
-          projected.sort((a, b) => a.z - b.z);
-          const alphaScale = 1.0;
-          const radiusBase = 1.5;
-          projected.forEach((p) => {
-            const depthScale = Math.max(0.45, Math.min(1.6, p.k * 0.9));
-            const r = radiusBase * depthScale;
-            const fillColor = cloudParticleColor(p, alphaScale, cloudPalette);
-            ctx.fillStyle = fillColor;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-            ctx.fill();
-          });
-        }
-      }
+      const maxRingRadius = Math.max(120, Math.min(width, height) * 0.4 / Math.max(0.7, zoom));
+      drawBohrModel(dtSec, maxRingRadius);
 
       ctx.restore();
       requestAnimationFrame(draw);
