@@ -526,6 +526,11 @@
       background: rgba(10, 18, 32, 0.72);
       backdrop-filter: blur(6px);
       box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+      will-change: transform, opacity;
+    }
+    .tools-sidebar.side-left {
+      left: auto;
+      right: calc(100% + 14px);
     }
 
     [data-theme="light"] .tools-sidebar {
@@ -565,6 +570,31 @@
       line-height: 0;
       vertical-align: super;
       margin-left: 1px;
+    }
+    .tool-side-formula {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      line-height: 1;
+    }
+    .tool-side-frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transform: translateY(1px);
+    }
+    .tool-side-frac .num,
+    .tool-side-frac .den {
+      display: block;
+      font-size: 0.8em;
+      padding: 0 2px;
+      line-height: 1.05;
+    }
+    .tool-side-frac .num {
+      border-bottom: 1.5px solid currentColor;
+      margin-bottom: 1px;
     }
 
     .tool-side-btn:hover {
@@ -4185,7 +4215,7 @@
 
     <div id="toolsSidebar" class="tools-sidebar hidden">
       <button id="sideMassBtn" class="tool-side-btn" data-i18n-title="mass_calc" title="相对原子质量计算器">M</button>
-      <button id="sideMoleBtn" class="tool-side-btn" data-i18n-title="mole_calc" title="物质的量换算">n=m/M</button>
+      <button id="sideMoleBtn" class="tool-side-btn" data-i18n-title="mole_calc" title="物质的量换算"><span class="tool-side-formula">n=<span class="tool-side-frac"><span class="num">m</span><span class="den">M</span></span></span></button>
       <button id="sideOrganicBtn" class="tool-side-btn" data-i18n-title="organic_title" title="有机分子结构">C</button>
       <button id="sideGalvanicBtn" class="tool-side-btn" data-i18n-title="galvanic_tool" title="原电池">电池</button>
       <button id="sideFlameBtn" class="tool-side-btn" data-i18n-title="flame_test" title="焰色试验">焰</button>
@@ -4355,6 +4385,13 @@
           <select id="toolsNavSelect">
             <option value="button" data-i18n="tools_nav_button">集成按钮</option>
             <option value="sidebar" data-i18n="tools_nav_sidebar">侧边栏</option>
+          </select>
+        </div>
+        <div class="modal-row" id="toolsSidebarSideRow">
+          <span data-i18n="tools_sidebar_side">侧边栏位置</span>
+          <select id="toolsSidebarSideSelect">
+            <option value="right" data-i18n="tools_sidebar_right">右侧</option>
+            <option value="left" data-i18n="tools_sidebar_left">左侧</option>
           </select>
         </div>
         <div class="modal-row">
@@ -5034,6 +5071,8 @@
     const langSelect = document.getElementById("langSelect");
     const naToggle = document.getElementById("naToggle");
     const toolsNavSelect = document.getElementById("toolsNavSelect");
+    const toolsSidebarSideRow = document.getElementById("toolsSidebarSideRow");
+    const toolsSidebarSideSelect = document.getElementById("toolsSidebarSideSelect");
     const soundToggle = document.getElementById("soundToggle");
     const soundVolumeSelect = document.getElementById("soundVolumeSelect");
     const massModal = document.getElementById("massModal");
@@ -5437,6 +5476,9 @@
         tools_nav_mode: "功能入口",
         tools_nav_button: "集成按钮",
         tools_nav_sidebar: "侧边栏",
+        tools_sidebar_side: "侧边栏位置",
+        tools_sidebar_right: "右侧",
+        tools_sidebar_left: "左侧",
         sound_effects: "操作音效",
         sound_volume: "音效音量",
         sound_vol_low: "低",
@@ -5748,6 +5790,9 @@
         tools_nav_mode: "Tools Entry",
         tools_nav_button: "Integrated Button",
         tools_nav_sidebar: "Sidebar",
+        tools_sidebar_side: "Sidebar Position",
+        tools_sidebar_right: "Right",
+        tools_sidebar_left: "Left",
         sound_effects: "Sound Effects",
         sound_volume: "SFX Volume",
         sound_vol_low: "Low",
@@ -5935,6 +5980,9 @@
         tools_nav_mode: "Entrada de herramientas",
         tools_nav_button: "Botón integrado",
         tools_nav_sidebar: "Barra lateral",
+        tools_sidebar_side: "Posición de barra",
+        tools_sidebar_right: "Derecha",
+        tools_sidebar_left: "Izquierda",
         sound_effects: "Efectos de sonido",
         sound_volume: "Volumen de efectos",
         sound_vol_low: "Bajo",
@@ -6122,6 +6170,9 @@
         tools_nav_mode: "機能入口",
         tools_nav_button: "統合ボタン",
         tools_nav_sidebar: "サイドバー",
+        tools_sidebar_side: "サイドバー位置",
+        tools_sidebar_right: "右側",
+        tools_sidebar_left: "左側",
         sound_effects: "操作効果音",
         sound_volume: "効果音の音量",
         sound_vol_low: "低",
@@ -6309,6 +6360,9 @@
         tools_nav_mode: "기능 진입 방식",
         tools_nav_button: "통합 버튼",
         tools_nav_sidebar: "사이드바",
+        tools_sidebar_side: "사이드바 위치",
+        tools_sidebar_right: "오른쪽",
+        tools_sidebar_left: "왼쪽",
         sound_effects: "조작 효과음",
         sound_volume: "효과음 볼륨",
         sound_vol_low: "낮음",
@@ -6496,6 +6550,9 @@
         tools_nav_mode: "Werkzeug-Einstieg",
         tools_nav_button: "Integrierter Button",
         tools_nav_sidebar: "Seitenleiste",
+        tools_sidebar_side: "Seitenleisten-Position",
+        tools_sidebar_right: "Rechts",
+        tools_sidebar_left: "Links",
         sound_effects: "Bediengeräusche",
         sound_volume: "Lautstärke",
         sound_vol_low: "Niedrig",
@@ -6600,8 +6657,32 @@
     let orbitalPanelViewMode = "orbital";
     let sfxEnabled = true;
     let sfxVolume = 0.45;
+    const minecraftClickSfxPath = "assets/sfx/minecraft_click_stereo.ogg";
+    let minecraftClickSfxBase = null;
     let sfxCtx = null;
     let sfxLastTick = 0;
+
+    function getMinecraftClickSfxBase() {
+      if (!minecraftClickSfxBase) {
+        minecraftClickSfxBase = new Audio(minecraftClickSfxPath);
+        minecraftClickSfxBase.preload = "auto";
+      }
+      return minecraftClickSfxBase;
+    }
+
+    function playMinecraftClickSfx() {
+      try {
+        const base = getMinecraftClickSfxBase();
+        const shot = base.cloneNode();
+        shot.volume = Math.max(0, Math.min(1, sfxVolume));
+        shot.currentTime = 0;
+        const p = shot.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
 
     function ensureSfxContext() {
       if (!window.AudioContext && !window.webkitAudioContext) return null;
@@ -6615,6 +6696,7 @@
 
     function playSfx(type) {
       if (!sfxEnabled) return;
+      if (playMinecraftClickSfx()) return;
       const audio = ensureSfxContext();
       if (!audio) return;
       const now = audio.currentTime + 0.01;
@@ -6692,7 +6774,7 @@
 
     function updateSidebarButtonLabels() {
       sideMassBtn.textContent = "M";
-      sideMoleBtn.textContent = "n=m/M";
+      sideMoleBtn.innerHTML = '<span class="tool-side-formula">n=<span class="tool-side-frac"><span class="num">m</span><span class="den">M</span></span></span>';
       sideOrganicBtn.textContent = "C";
       sideGalvanicBtn.textContent = currentLang === "zh" ? "电池" : "Cell";
       sideFlameBtn.textContent = currentLang === "zh" ? "焰" : "Fl";
@@ -11181,10 +11263,17 @@
     }
 
     let toolsNavMode = "button";
+    let toolsSidebarSide = "right";
     const modalParentMap = new Map();
 
     function syncToolsEntryLayout() {
       const isMobile = window.matchMedia("(max-width: 900px)").matches;
+      toolsSidebar.classList.toggle("side-left", toolsSidebarSide === "left");
+      toolsSidebar.classList.toggle("side-right", toolsSidebarSide !== "left");
+      if (toolsSidebarSideRow) {
+        toolsSidebarSideRow.style.display = toolsNavMode === "sidebar" ? "" : "none";
+      }
+      if (toolsSidebarSideSelect) toolsSidebarSideSelect.disabled = toolsNavMode !== "sidebar";
       if (toolsNavMode === "sidebar" && !isMobile) {
         moreToolsBtn.classList.add("hidden");
         toolsSidebar.classList.remove("hidden");
@@ -11198,6 +11287,38 @@
       toolsNavMode = value === "sidebar" ? "sidebar" : "button";
       localStorage.setItem("toolsNavMode", toolsNavMode);
       syncToolsEntryLayout();
+    }
+
+    function applyToolsSidebarSide(value) {
+      const nextSide = value === "left" ? "left" : "right";
+      const isMobile = window.matchMedia("(max-width: 900px)").matches;
+      const shouldAnimate =
+        toolsNavMode === "sidebar" &&
+        !isMobile &&
+        !toolsSidebar.classList.contains("hidden") &&
+        nextSide !== toolsSidebarSide;
+      const fromRect = shouldAnimate ? toolsSidebar.getBoundingClientRect() : null;
+
+      toolsSidebarSide = nextSide;
+      localStorage.setItem("toolsSidebarSide", toolsSidebarSide);
+      syncToolsEntryLayout();
+
+      if (fromRect) {
+        const toRect = toolsSidebar.getBoundingClientRect();
+        const deltaX = fromRect.left - toRect.left;
+        if (Math.abs(deltaX) > 1) {
+          toolsSidebar.animate(
+            [
+              { transform: `translateX(${deltaX}px)`, opacity: 0.92 },
+              { transform: "translateX(0)", opacity: 1 }
+            ],
+            {
+              duration: 260,
+              easing: "cubic-bezier(0.22, 1, 0.36, 1)"
+            }
+          );
+        }
+      }
     }
 
     function openWithParent(modalEl, parentId = "", sourceEl = null) {
@@ -11597,6 +11718,14 @@
       applyToolsNavMode("button");
       toolsNavSelect.value = "button";
     }
+    const savedToolsSidebarSide = localStorage.getItem("toolsSidebarSide");
+    if (savedToolsSidebarSide === "left" || savedToolsSidebarSide === "right") {
+      applyToolsSidebarSide(savedToolsSidebarSide);
+      toolsSidebarSideSelect.value = savedToolsSidebarSide;
+    } else {
+      applyToolsSidebarSide("right");
+      toolsSidebarSideSelect.value = "right";
+    }
     const savedOrbitalPanelViewMode = localStorage.getItem("orbitalPanelViewMode");
     if (savedOrbitalPanelViewMode === "orbital" || savedOrbitalPanelViewMode === "atomic" || savedOrbitalPanelViewMode === "config") {
       orbitalPanelViewMode = savedOrbitalPanelViewMode === "config" ? "atomic" : savedOrbitalPanelViewMode;
@@ -11634,6 +11763,7 @@
       openLangConfirm(nextLang);
     });
     toolsNavSelect.addEventListener("change", (e) => applyToolsNavMode(e.target.value));
+    toolsSidebarSideSelect.addEventListener("change", (e) => applyToolsSidebarSide(e.target.value));
     naToggle.addEventListener("change", (e) => {
       useNAForParticles = e.target.value === "on";
       localStorage.setItem("useNA", e.target.value);
